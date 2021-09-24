@@ -259,7 +259,6 @@ async function showSuggest(array, e, input){
   } else {suggests.innerHTML = ""; itemArray = [] };
 }
 
-
 function suggestFunction(element){
   let cacheUpdate = [];
   let tag = [];
