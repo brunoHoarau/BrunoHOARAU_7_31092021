@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+  <link rel="stylesheet" href="normalize.css">
   <link rel="stylesheet" href="style.css">
   <title>Document</title>
 </head>
@@ -14,17 +16,33 @@
       </header>
       <article id="tags"></article>
       <article class="article_search">
-        <form class="col col-lg-2">
+        <span class="glyphicon glyphicon-name"></span>
+        <form class="col col-lg-2 col-xl-2">
           <input type="text" id="ingredients" class="bg-primary text-white"  aria-label="Ingrédients" aria-describedby="Input-Ingredients" placeholder="Ingrédients" autocomplete="off">
+          <span class="bg-primary uccess text-white" for="ingredients" value="ingredients">
+            <i class="bi bi-chevron-down"></i>
+          </span>
           <div id="suggestsIngredients" class="bg-primary text-white"></div>
         </form>
+
+
+
         <form class="col col-lg-2">
           <input type="text" id="appliance" class="bg-success text-white" aria-label="Appareil" aria-describedby="Input-Apprareils" placeholder=" Appareils" autocomplete="off">
-          <div id="suggestsAppliances" class="bg-primary text-white"></div>
+          <span class="bg-success text-white" for="appliance" value="appliance">
+            <i class="bi bi-chevron-down"></i>
+          </span>
+          <div id="suggestsAppliance" class="bg-primary text-white"></div>
         </form>
+
+
+
           <form class="col col-lg-2">
             <input type="text" id="ustensils" class="bg-primary text-white" aria-label="Ustensils" aria-describedby="Input-Ustensils"
             placeholder="Ustensils" autocomplete="off">
+            <span class="bg-success text-white" for="ustensils" value="ustensils">
+              <i class="bi bi-chevron-down"></i>
+            </span>
             <div id="suggestsUstensils" class="bg-primary text-white"></div>
           </form>
           

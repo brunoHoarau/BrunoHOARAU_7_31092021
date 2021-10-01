@@ -1,7 +1,9 @@
-// collect DOM elmts
+// collect DOM elmts // branch1
 const header = document.getElementsByTagName('header')[0];
 const articleRecipes = document.getElementById('article_recipes');
 const inputIngredients = document.getElementById('ingredientsInput');
+
+
 // let suggests;
 const inputSearch = document.getElementsByTagName('input');
 const tags = document.getElementById('tags');
@@ -9,12 +11,14 @@ let suggests;
 
 // any elmts
 let ingredientsList = [];
-let appareilsList = [];
+let applianceList = [];
 let ustensilsList = [];
+let namesList= [];
 let tagsArray = [];
 let tagsIngredients = [];
 let tagsAplliance = [];
 let tagsUstensils = [];
+let tagsName = [];
 let itemArray = [];
 let ingrdSuggest;
 let itemToLowerCase;
@@ -61,11 +65,10 @@ function setData(){
 
 function updateData(){
   // const found = ingredientsList.some( res => { console.log(tagsArray[0] === res) }) // autre facon de faire
-  suggests.innerHTML = "";
   console.log(tagsArray)
   tagsArray.forEach ( elmt => {
     articleRecipes.innerHTML = "";
-    if (ingredientsList.includes(elmt) || ustensilsList.includes(elmt) || appareilsList.includes(elmt)){
+    if (ingredientsList.includes(elmt) || ustensilsList.includes(elmt) || applianceList.includes(elmt) || namesList.includes(elmt)){
       var cache = {};
       updateRecipe = updateRecipe.filter(function(elem){
         return cache[elem.id]?0:cache[elem.id]=1;
@@ -83,6 +86,10 @@ function updateData(){
 }
 
 function suggestList(array){
+  ingredientsList = [];
+  ustensilsList = [];
+  applianceList = [];
+  namesList = [];
   array.forEach(
     elmt => {
       elmt.ingredients.forEach(ingredient => {
@@ -93,13 +100,16 @@ function suggestList(array){
           // app = app[0].toUpperCase() + app.slice(1);
           ustensilsList.push(app)
         });
-      appareilsList.push(elmt.appliance);
+      applianceList.push(elmt.appliance);
+      namesList.push(elmt.name);
     }
   );
   ingredientsList = [...new Set(ingredientsList)];
   ustensilsList = [...new Set(ustensilsList)];
-  appareilsList = [...new Set(appareilsList)];
+  applianceList = [...new Set(applianceList)];
 }
+
+
 // factory node
 const elmtFactory = (nodeName, attribute, ...children) => {
   const elmt = document.createElement(nodeName)
@@ -123,8 +133,10 @@ const logo = elmtFactory('img',{ id: 'logo', src: './public/chiefCap.svg'}, );
 
 // Search
 const title = elmtFactory('h1', { id: 'header_h1'}, "Les petits plats")
-const formSearchBar = elmtFactory('form', { class: "form_search"},elmtFactory('input', { type: 'text', class: 'header_nav', autocomplete: 'off'},
-  elmtFactory('i',{ class: 'bi bi-search'}, )),
+const formSearchBar = elmtFactory('form', { class: "form_search"},elmtFactory('input', { type: 'text', class: 'header_nav', autocomplete: 'off', placeholder: "Rechercher un ingredient, appareil, ustensiles ou une recette"},),
+elmtFactory('button', { type: 'submit'},
+elmtFactory('i',{ class: 'bi bi-search'}, ) ),
+    // elmtFactory('i',{ class: 'bi bi-search'}, ),
     elmtFactory('div', { id: 'suggestsGlobal'},
     )  )
 const topNav = elmtFactory('input', { type: 'text', class: 'header_nav'},
@@ -142,7 +154,8 @@ const selectsArticle = elmtFactory('article', { class: 'article_selects'},
 // main - show all recipe
 function showCards (element) {
   for ( recipe of element){ 
-    let Recipe = new RecipeClass(recipe.id, recipe.name, recipe.servings, recipe.ingredients, recipe.time, recipe.description, recipe.appliance, recipe.ustensils) 
+    let Recipe = new 
+    RecipeClass(recipe.id, recipe.name, recipe.servings, recipe.ingredients, recipe.time, recipe.description, recipe.appliance, recipe.ustensils) 
 
     sectionRecipe = elmtFactory('section', {class: 'section_recipe col col-lg-4'}, 
     elmtFactory('img', { class: 'recipe_img'}, ),
@@ -160,6 +173,7 @@ function showCards (element) {
     ulRecipe = document.getElementsByClassName('recipe_ul') ;
     for ( li of  liRecipe){
       if ( li.unit){
+        let liUnit = li.unit;
         let ingredientLi = elmtFactory('li', { class: 'li_recipe'}, li.ingredient +': ' + li.quantity + li.unit )
         ulRecipe[numb].appendChild(ingredientLi);
       } else {
@@ -181,12 +195,22 @@ function render() {
 // addEventListener on input
 for ( let input of inputSearch){
   input.addEventListener('keyup', (e) => {
+    console.log(e.key)
+    inputEvent(e,input);
     e.preventDefault();
-    inputEvent(e,input)
+  })
+
+  input.addEventListener('keydown', (e) => {
+    if( e.key === "enter"){
+      e.stopPropagation();
+      e.preventDefault();
+      return false
+    }
+    console.log(e.key);
   })
 }
 
-async function inputEvent(e, input){
+function inputEvent(e, input){
     let inputValue;
     let lettersLowerCase;
     let brutItem;
@@ -195,14 +219,20 @@ async function inputEvent(e, input){
     } else {
       showSuggest(updateRecipe, e, input)
     }
+    
 }
 
-async function showSuggest(array, e, input){
-  suggests = e.target.nextElementSibling;
+function showSuggest(array, e, input){
+  // suggests = e.target.nextElementSibling;
+  suggests = e.target.parentNode.lastElementChild;
+  console.log(suggests);
   inputId = input.getAttribute('id');
   let inputValue = input.value ;
   let lettersLowerCase = inputValue.toLowerCase();
   let brutItem;
+  suggests.innerHTML = "";
+  itemArray = [];
+
   array.forEach( (elmt) => {
     if(inputValue.length>=3){
       for ( let [key, value] of Object.entries(elmt)){
@@ -216,56 +246,159 @@ async function showSuggest(array, e, input){
               brutItem = item.ingredient;
             };
             if(itemToLowerCase.includes(lettersLowerCase)){
-                  itemArray.push(brutItem);
-                  itemArray = [...new Set(itemArray)];
-                  updateRecipe.push(elmt);
+              itemArray.push(brutItem);
+              itemArray = [...new Set(itemArray)];
+              updateRecipe.push(elmt);
+              updateRecipe = [...new Set(updateRecipe)];
             }
-          } 
-        }else if( key === inputId && typeof value === 'string' && value.toLowerCase().includes(inputValue.toLowerCase())){
+          }
+        } else if( key === inputId && typeof value === 'string' && value.toLowerCase().includes(inputValue.toLowerCase())){
           itemArray.push(value);
           itemArray = [...new Set(itemArray)]
-          updateRecipe.push(elmt);
         } else if ( inputId === null ){
-            if( isNaN(value) && key !== 'description'){
-              for( item of value) {
-                if( typeof value === 'string' && value.toLowerCase().includes(inputValue.toLowerCase()) ){
-                  itemArray.push(value);
-                  itemArray = [...new Set(itemArray)];
-                  updateRecipe.push(elmt);
-                } else if (typeof value === 'object' && typeof item === 'string' && item.toLowerCase().includes(inputValue.toLowerCase())){
-                  itemArray.push(item);
-                  itemArray = [...new Set(itemArray)];
-                  updateRecipe.push(elmt);
-                } else if( typeof value === 'object' && typeof item === 'object' && item.ingredient.toLowerCase().includes(inputValue.toLowerCase())){
-                    itemArray.push(item.ingredient);
-                    itemArray = [...new Set(itemArray)];
-                    updateRecipe.push(elmt);
-                  }
-                }
-              } else if (key === 'name' && value.toLowerCase().includes(inputValue.toLowerCase())) {
+          if( isNaN(value) && key !== 'description'){
+            for( item of value) {
+              if( typeof value === 'string' && value.toLowerCase().includes(inputValue.toLowerCase()) ){
+                updateRecipe.push(elmt);
+                updateRecipe = [...new Set(updateRecipe)];
+
+              } else if (typeof value === 'object' && typeof item === 'string' && item.toLowerCase().includes(inputValue.toLowerCase())){
+                updateRecipe.push(elmt);
+                updateRecipe = [...new Set(updateRecipe)];
+              } else if( typeof value === 'object' && typeof item === 'object' && item.ingredient.toLowerCase().includes(inputValue.toLowerCase())){
+                updateRecipe.push(elmt);
+                updateRecipe = [...new Set(updateRecipe)];
+                console.log(updateRecipe)
               }
             }
+          }
+        }
       }
     }
   })
-  suggests.innerHTML = "";
   itemArray.forEach( sug => {
     ingrdSuggest = elmtFactory('p', { class: "suggest", value: inputId, onclick: "suggestFunction(this)"}, sug )
     suggests.appendChild(ingrdSuggest);
   }) 
-  console.log(itemArray)
-  if(inputValue.length >= 3) {
-    itemArray = [] ;
-  } else {suggests.innerHTML = ""; itemArray = [] };
+  console.log(itemArray);
 }
 
+
+// function on suggests when we click on a suggest
 function suggestFunction(element){
+  let cacheUpdate = [];
+  // updateRecipe = [];
+  let tag = [];
+  tags.innerHTML = "";
+  let text = element.textContent;
+  let valuElmt = element.getAttribute('value');
+  let valueM = valuElmt[0].toUpperCase() +valuElmt.slice(1);
+  let suggestById = "suggests"+ valueM ;
+  console.log(suggestById);
+
+  if( valuElmt === 'ingredients' ){
+    tagsIngredients.push(text);
+    tagsIngredients = [...new Set(tagsIngredients)];
+    console.log(tagsIngredients.length);
+  } else if( valuElmt === 'appliance'){
+    tagsAplliance.push(text);
+    tagsAplliance = [...new Set(tagsAplliance)];
+    console.log(tagsAplliance);
+  } else if( valuElmt === 'ustensils'){
+    tagsUstensils.push(text)
+    tagsUstensils = [...new Set(tagsUstensils)];
+    console.log(tagsUstensils);
+  }else if( valuElmt === 'name'){
+    tagsName.push(text);
+    tagsName = [...new Set(tagsName)];
+    console.log(tagsName);
+  }
+  console.log(updateRecipe);
+  tagsArray.push(text);
+tagsArray = [...new Set(tagsArray)];
+tagsArray.forEach( elmt => {
+  tag = elmtFactory('p', { class: "bg-primary text-white"}, elmt);
+  tags.appendChild(tag);
+})
+updateRecipe.forEach( elmt => {
+  for ( let [key, value] of Object.entries(elmt)){
+    if( key === inputId && typeof value === 'object'){
+      for ( let item of value){
+        if( typeof item === 'object' && item.ingredient.toLowerCase() === text.toLowerCase()){
+          tagsIngredients.forEach( igrd => {
+            if( item.ingredient.toLowerCase() === igrd.toLowerCase()){
+              articleRecipes.innerHTML = "";
+              updateRecipe.push(elmt);
+              cacheUpdate.push(elmt);
+            }
+          })
+        } else if (typeof item === 'string' && item.toLowerCase() === text.toLowerCase()){
+          tagsUstensils.forEach( ustl => {
+            if( item.toLowerCase() === ustl.toLowerCase()){
+              console.log(elmt)
+              articleRecipes.innerHTML = "";
+              updateRecipe.push(elmt);
+              cacheUpdate.push(elmt);
+              
+            }
+              })
+            }
+          }
+        } else if ( key === inputId && typeof value === 'string' && value.toLowerCase() === text.toLowerCase() ){
+          tagsAplliance.forEach( apl => {
+            if( apl.toLowerCase() === apl.toLowerCase()){
+              console.log(elmt);
+              articleRecipes.innerHTML = "";
+              updateRecipe.push(elmt);
+              cacheUpdate.push(elmt);
+            }
+          })
+          
+
+        }
+      }
+    })
+  console.log(updateRecipe);
+  cacheUpdate = [...new Set(cacheUpdate)];
+  updateRecipe = [...cacheUpdate];
+  console.log(eval(suggestById));
+  eval(suggestById).innerHTML = "";
+  render();
+}
+
+const spans = document.getElementsByTagName('span');
+
+for ( let span of spans){
+  span.addEventListener('click', (e) => {
+    // e.preventDefault();
+    let spanValue = span.getAttribute('value');
+    let spanValueM = spanValue[0].toUpperCase() + spanValue.slice(1);
+    let suggestById = "suggests"+ spanValueM ;
+    let suggestId = document.getElementById(suggestById);
+    suggestId.innerHTML = "";
+    // let inputId = document.getElementById(suggestById);
+    let nomming = spanValue+"List";
+    let dynamicName = eval(nomming)
+    for( let li of dynamicName){
+      let listSuggest = elmtFactory('p', { class: "suggest", value: spanValue, onclick: "listFunction(this)"}, li );
+      suggestId.appendChild(listSuggest);
+    }
+  })
+}
+
+
+function listFunction(element){
   let cacheUpdate = [];
   let tag = [];
   tags.innerHTML = "";
   let text = element.textContent;
   let valuElmt = element.getAttribute('value');
-  // console.log(valuElmt);
+  console.log(valuElmt)
+  let valueM = valuElmt[0].toUpperCase() + valuElmt.slice(1);
+    let suggestId = "suggests"+ valueM ;
+    console.log(eval(suggestId));
+  
+
   if( valuElmt === 'ingredients' ){
     tagsIngredients.push(text);
     tagsIngredients = [...new Set(tagsIngredients)];
@@ -279,62 +412,70 @@ function suggestFunction(element){
     tagsUstensils = [...new Set(tagsUstensils)];
     console.log(tagsUstensils);
   }
-  console.log(updateRecipe);
+
   tagsArray.push(text);
 tagsArray = [...new Set(tagsArray)];
 tagsArray.forEach( elmt => {
   tag = elmtFactory('p', { class: "bg-primary text-white"}, elmt);
   tags.appendChild(tag);
 })
-updateRecipe.forEach( elmt => {
-  // console.log(elmt)
-  for ( let [key, value] of Object.entries(elmt)){
-    // console.log(typeof value)
-    if( key === inputId && typeof value === 'object'){
-      for ( let item of value){
-        if( typeof item === 'object' && item.ingredient.toLowerCase() === text.toLowerCase()){
-          // console.log(item);
-          tagsIngredients.forEach( igrd => {
-            if( item.ingredient.toLowerCase() === igrd.toLowerCase()){
-              // console.log(item.ingredient, igrd)
-              articleRecipes.innerHTML = "";
-              updateRecipe.push(elmt);
-              cacheUpdate.push(elmt);
-            }
-          })
-        } else if (typeof item === 'string' && item.toLowerCase() === text.toLowerCase()){
-          // text = text.toLowerCase();
-          // console.log(item);
-          tagsUstensils.forEach( ustl => {
-            if( item.toLowerCase() === ustl.toLowerCase()){
-              console.log(elmt)
-              articleRecipes.innerHTML = "";
-              updateRecipe.push(elmt);
-              cacheUpdate.push(elmt);
-              
-            }
-              })
-            }
-          }
-        } else if ( key === inputId && typeof value === 'string' && value.toLowerCase() === text.toLowerCase() ){
-          // console.log(key, typeof value);
-          tagsAplliance.forEach( apl => {
-            if( apl.toLowerCase() === apl.toLowerCase()){
-              console.log(elmt);
-              articleRecipes.innerHTML = "";
-          updateRecipe.push(elmt);
-          cacheUpdate.push(elmt);
-            }
-          })
-          
 
-        }
-      }
-    })
-
-  cacheUpdate = [...new Set(cacheUpdate)];
-  updateRecipe = [...cacheUpdate];
-  console.log(updateRecipe);
-  element.textContent = "vide";
+  if( updateRecipe.length === 0){
+    sortArray( recipesArray, cacheUpdate, valuElmt, text );
+    eval(suggestId).innerHTML = "";
+  } else {
+    sortArray(updateRecipe, cacheUpdate, valuElmt, text);
+    eval(suggestId).innerHTML = "";
+    suggestList(updateRecipe);
+  }
+  eval(suggestId).innerHTML = ""
   render();
 }
+
+
+function sortArray(array, cacheUpdate, valuElmt, text){
+  array.forEach( elmt => {
+    for ( let [key, value] of Object.entries(elmt)){
+      // console.log(key, valuElmt);
+      if( key === valuElmt && typeof value === 'object'){
+        for ( let item of value){
+          if( typeof item === 'object' && item.ingredient.toLowerCase() === text.toLowerCase()){
+            tagsIngredients.forEach( igrd => {
+              if( item.ingredient.toLowerCase() === igrd.toLowerCase()){
+                articleRecipes.innerHTML = "";
+                updateRecipe.push(elmt);
+                cacheUpdate.push(elmt);
+              }
+            })
+          } else if (typeof item === 'string' && item.toLowerCase() === text.toLowerCase()){
+            tagsUstensils.forEach( ustl => {
+              if( item.toLowerCase() === ustl.toLowerCase()){
+                console.log(elmt)
+                articleRecipes.innerHTML = "";
+                updateRecipe.push(elmt);
+                cacheUpdate.push(elmt);
+                
+              }
+                })
+              }
+            }
+          } else if ( key === valuElmt && typeof value === 'string' && value.toLowerCase() === text.toLowerCase() ){
+            tagsAplliance.forEach( apl => {
+              if( apl.toLowerCase() === apl.toLowerCase()){
+                console.log(elmt);
+                articleRecipes.innerHTML = "";
+            updateRecipe.push(elmt);
+            cacheUpdate.push(elmt);
+              }
+            })
+            
+  
+          }
+        }
+      })
+      console.log(updateRecipe);
+      cacheUpdate = [...new Set(cacheUpdate)];
+      updateRecipe = [...cacheUpdate];
+      console.log(updateRecipe);
+}
+
