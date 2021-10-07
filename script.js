@@ -1,7 +1,10 @@
 // collect DOM elmts // branch1
 const header = document.getElementsByTagName('header')[0];
 const articleRecipes = document.getElementById('article_recipes');
-const inputIngredients = document.getElementById('ingredientsInput');
+const inputIngredients = document.getElementById('ingredients');
+const inputUstensils = document.getElementById('ustensils');
+const inputAppliance = document.getElementById('appliance');
+
 
 
 // let suggests;
@@ -223,64 +226,79 @@ function inputEvent(e, input){
 }
 
 function showSuggest(array, e, input){
-  // suggests = e.target.nextElementSibling;
   suggests = e.target.parentNode.lastElementChild;
-  console.log(suggests);
   inputId = input.getAttribute('id');
   let inputValue = input.value ;
   let lettersLowerCase = inputValue.toLowerCase();
-  let brutItem;
   suggests.innerHTML = "";
   itemArray = [];
 
-  array.forEach( (elmt) => {
-    if(inputValue.length>=3){
-      for ( let [key, value] of Object.entries(elmt)){
-        if( key === inputId && typeof value === 'object'){
-          for( item of value) {
-            if(typeof item === "string" ){
-              itemToLowerCase = item.toLowerCase();
-              brutItem = item;
-            } else {
-              itemToLowerCase = item.ingredient.toLowerCase();
-              brutItem = item.ingredient;
-            };
-            if(itemToLowerCase.includes(lettersLowerCase)){
-              itemArray.push(brutItem);
-              itemArray = [...new Set(itemArray)];
-              updateRecipe.push(elmt);
-              updateRecipe = [...new Set(updateRecipe)];
-            }
+  if(inputValue.length>=3){
+    if(inputId === "ingredients"){
+      array.forEach( elmt => {
+        let foundIngrd = elmt.ingredients.some( res => {
+          let igrdLower = res.ingredient.toLowerCase();
+          if( igrdLower.includes(lettersLowerCase)){
+            itemArray.push(res.ingredient);
+            itemArray = [...new Set(itemArray)];
+            updateRecipe.push(elmt);
+            updateRecipe = [...new Set(updateRecipe)];
           }
-        } else if( key === inputId && typeof value === 'string' && value.toLowerCase().includes(inputValue.toLowerCase())){
-          itemArray.push(value);
-          itemArray = [...new Set(itemArray)]
-        } else if ( inputId === null ){
-          if( isNaN(value) && key !== 'description'){
-            for( item of value) {
-              if( typeof value === 'string' && value.toLowerCase().includes(inputValue.toLowerCase()) ){
-                updateRecipe.push(elmt);
-                updateRecipe = [...new Set(updateRecipe)];
-
-              } else if (typeof value === 'object' && typeof item === 'string' && item.toLowerCase().includes(inputValue.toLowerCase())){
-                updateRecipe.push(elmt);
-                updateRecipe = [...new Set(updateRecipe)];
-              } else if( typeof value === 'object' && typeof item === 'object' && item.ingredient.toLowerCase().includes(inputValue.toLowerCase())){
-                updateRecipe.push(elmt);
-                updateRecipe = [...new Set(updateRecipe)];
-                console.log(updateRecipe)
-              }
-            }
-          }
-        }
-      }
+        });
+      });
     }
-  })
+
+    if(inputId === "appliance"){
+      array.forEach( elmt => {
+        let applianceLower = elmt.appliance.toLowerCase();
+        if ( applianceLower.includes(lettersLowerCase)){
+          itemArray.push(elmt.appliance);
+          itemArray = [...new Set(itemArray)];
+          updateRecipe.push(elmt);
+          updateRecipe = [...new Set(updateRecipe)];
+        }
+      });
+    }
+
+    if(inputId === "ustensils"){
+      array.forEach( elmt => {
+        let foundUstensil = elmt.ustensils.some( res => {
+          let ustensilsLower = res.toLowerCase();
+          if ( ustensilsLower.includes(lettersLowerCase)){
+            itemArray.push(res);
+            itemArray = [...new Set(itemArray)];
+            updateRecipe.push(elmt);
+            updateRecipe = [...new Set(updateRecipe)];
+          }
+        });
+      } );
+    }
+
+    if(inputId === null){
+      array.forEach( elmt => {
+        elmt.ingredients.forEach ( igr => {
+          if(igr.ingredient.includes(inputValue)){
+            updateRecipe.push(elmt);
+            updateRecipe = [...new Set(updateRecipe)];
+          }
+        });
+        elmt.ustensils.forEach( ustl => {
+          if(ustl.includes(inputValue)){
+            updateRecipe.push(elmt);
+            updateRecipe = [...new Set(updateRecipe)];
+          }
+        });
+        if( elmt.appliance.toLowerCase().includes(inputValue.toLowerCase())){
+          updateRecipe.push(elmt);
+          updateRecipe = [...new Set(updateRecipe)];
+        }
+      });
+    }
+  }
   itemArray.forEach( sug => {
-    ingrdSuggest = elmtFactory('p', { class: "suggest", value: inputId, onclick: "suggestFunction(this)"}, sug )
+    ingrdSuggest = elmtFactory('p', { class: "suggest", value: inputId, onclick: "suggestFunction(this)"}, sug );
     suggests.appendChild(ingrdSuggest);
-  }) 
-  console.log(itemArray);
+  }) ;
 }
 
 
@@ -294,24 +312,53 @@ function suggestFunction(element){
   let valuElmt = element.getAttribute('value');
   let valueM = valuElmt[0].toUpperCase() +valuElmt.slice(1);
   let suggestById = "suggests"+ valueM ;
-  console.log(suggestById);
+  console.log(element);
 
   if( valuElmt === 'ingredients' ){
     tagsIngredients.push(text);
     tagsIngredients = [...new Set(tagsIngredients)];
-    console.log(tagsIngredients.length);
+    updateRecipe.forEach( elmt => {
+      console.log(elmt);
+      const foundIngrd = elmt.ingredients.some( res => {
+        let igrdLower = res.ingredient.toLowerCase();
+        if( igrdLower === text.toLowerCase() ){
+          articleRecipes.innerHTML = "";
+          updateRecipe.push(elmt);
+          cacheUpdate.push(elmt);
+          console.log(elmt);
+         inputIngredients.value = "";
+        }
+      })
+    })
   } else if( valuElmt === 'appliance'){
     tagsAplliance.push(text);
     tagsAplliance = [...new Set(tagsAplliance)];
     console.log(tagsAplliance);
+    updateRecipe.forEach( elmt => {
+      let applianceLower = elmt.appliance.toLowerCase();
+      if( applianceLower === text.toLowerCase()){
+        articleRecipes.innerHTML = "";
+          updateRecipe.push(elmt);
+          cacheUpdate.push(elmt);
+          console.log(elmt);
+         inputAppliance.value = "";
+      }
+    })
   } else if( valuElmt === 'ustensils'){
     tagsUstensils.push(text)
     tagsUstensils = [...new Set(tagsUstensils)];
-    console.log(tagsUstensils);
-  }else if( valuElmt === 'name'){
-    tagsName.push(text);
-    tagsName = [...new Set(tagsName)];
-    console.log(tagsName);
+    updateRecipe.forEach( elmt=> {
+      const foundUstensil = elmt.ustensils.some( res => {
+        let ustensilsLower = res.toLowerCase();
+        if ( ustensilsLower === text.toLowerCase()){
+          articleRecipes.innerHTML = "";
+          updateRecipe.push(elmt);
+          cacheUpdate.push(elmt);
+          console.log(elmt);
+         inputUstensils.value = "";
+        }
+      })
+    } )
   }
   console.log(updateRecipe);
   tagsArray.push(text);
@@ -320,44 +367,6 @@ tagsArray.forEach( elmt => {
   tag = elmtFactory('p', { class: "bg-primary text-white"}, elmt);
   tags.appendChild(tag);
 })
-updateRecipe.forEach( elmt => {
-  for ( let [key, value] of Object.entries(elmt)){
-    if( key === inputId && typeof value === 'object'){
-      for ( let item of value){
-        if( typeof item === 'object' && item.ingredient.toLowerCase() === text.toLowerCase()){
-          tagsIngredients.forEach( igrd => {
-            if( item.ingredient.toLowerCase() === igrd.toLowerCase()){
-              articleRecipes.innerHTML = "";
-              updateRecipe.push(elmt);
-              cacheUpdate.push(elmt);
-            }
-          })
-        } else if (typeof item === 'string' && item.toLowerCase() === text.toLowerCase()){
-          tagsUstensils.forEach( ustl => {
-            if( item.toLowerCase() === ustl.toLowerCase()){
-              console.log(elmt)
-              articleRecipes.innerHTML = "";
-              updateRecipe.push(elmt);
-              cacheUpdate.push(elmt);
-              
-            }
-              })
-            }
-          }
-        } else if ( key === inputId && typeof value === 'string' && value.toLowerCase() === text.toLowerCase() ){
-          tagsAplliance.forEach( apl => {
-            if( apl.toLowerCase() === apl.toLowerCase()){
-              console.log(elmt);
-              articleRecipes.innerHTML = "";
-              updateRecipe.push(elmt);
-              cacheUpdate.push(elmt);
-            }
-          })
-          
-
-        }
-      }
-    })
   console.log(updateRecipe);
   cacheUpdate = [...new Set(cacheUpdate)];
   updateRecipe = [...cacheUpdate];
