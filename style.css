@@ -119,7 +119,7 @@ form{
 button{
   border: none;
   background-color: #E7E7E7;
-
+  content: "\f52a";
 }
 
 textarea:focus, input:focus{
