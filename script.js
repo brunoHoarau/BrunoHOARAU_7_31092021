@@ -123,8 +123,10 @@ const logo = elmtFactory('img',{ id: 'logo', src: './public/chiefCap.svg'}, );
 
 // Search
 const title = elmtFactory('h1', { id: 'header_h1'}, "Les petits plats")
-const formSearchBar = elmtFactory('form', { class: "form_search"},elmtFactory('input', { type: 'text', class: 'header_nav', autocomplete: 'off'},
-  elmtFactory('i',{ class: 'bi bi-search'}, )),
+const formSearchBar = elmtFactory('form', { class: "form_search"},elmtFactory('input', { type: 'text', class: 'header_nav', autocomplete: 'off', placeholder: "Rechercher un ingredient, appareil, ustensiles ou une recette"},),
+elmtFactory('button', { type: 'submit'},
+elmtFactory('i',{ class: 'bi bi-search'}, ) ),
+    // elmtFactory('i',{ class: 'bi bi-search'}, ),
     elmtFactory('div', { id: 'suggestsGlobal'},
     )  )
 const topNav = elmtFactory('input', { type: 'text', class: 'header_nav'},
@@ -186,7 +188,7 @@ for ( let input of inputSearch){
   })
 }
 
-async function inputEvent(e, input){
+function inputEvent(e, input){
     let inputValue;
     let lettersLowerCase;
     let brutItem;
@@ -197,7 +199,7 @@ async function inputEvent(e, input){
     }
 }
 
-async function showSuggest(array, e, input){
+function showSuggest(array, e, input){
   suggests = e.target.nextElementSibling;
   inputId = input.getAttribute('id');
   let inputValue = input.value ;
@@ -265,7 +267,6 @@ function suggestFunction(element){
   tags.innerHTML = "";
   let text = element.textContent;
   let valuElmt = element.getAttribute('value');
-  // console.log(valuElmt);
   if( valuElmt === 'ingredients' ){
     tagsIngredients.push(text);
     tagsIngredients = [...new Set(tagsIngredients)];
@@ -289,35 +290,28 @@ tagsArray.forEach( elmt => {
 updateRecipe.forEach( elmt => {
   // console.log(elmt)
   for ( let [key, value] of Object.entries(elmt)){
-    // console.log(typeof value)
     if( key === inputId && typeof value === 'object'){
       for ( let item of value){
         if( typeof item === 'object' && item.ingredient.toLowerCase() === text.toLowerCase()){
-          // console.log(item);
           tagsIngredients.forEach( igrd => {
             if( item.ingredient.toLowerCase() === igrd.toLowerCase()){
-              // console.log(item.ingredient, igrd)
               articleRecipes.innerHTML = "";
               updateRecipe.push(elmt);
               cacheUpdate.push(elmt);
             }
           })
         } else if (typeof item === 'string' && item.toLowerCase() === text.toLowerCase()){
-          // text = text.toLowerCase();
-          // console.log(item);
-          tagsUstensils.forEach( ustl => {
-            if( item.toLowerCase() === ustl.toLowerCase()){
-              console.log(elmt)
-              articleRecipes.innerHTML = "";
-              updateRecipe.push(elmt);
-              cacheUpdate.push(elmt);
-              
-            }
+            tagsUstensils.forEach( ustl => {
+              if( item.toLowerCase() === ustl.toLowerCase()){
+                console.log(elmt)
+                articleRecipes.innerHTML = "";
+                updateRecipe.push(elmt);
+                cacheUpdate.push(elmt);
+               }
               })
             }
           }
         } else if ( key === inputId && typeof value === 'string' && value.toLowerCase() === text.toLowerCase() ){
-          // console.log(key, typeof value);
           tagsAplliance.forEach( apl => {
             if( apl.toLowerCase() === apl.toLowerCase()){
               console.log(elmt);
