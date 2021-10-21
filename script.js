@@ -10,22 +10,22 @@ let sectionR ;
 let suggests;
 
 // any elmts
-let ingredientsList = [];
-let applianceList = [];
-let ustensilsList = [];
-let nameList = [];
+// let ingredientsList = [];
+// let applianceList = [];
+// let ustensilsList = [];
+// let nameList = [];
 let tagsArray = [];
-let tagsArrayTest = [];
-let tagsIngredients = [];
-let tagsAppliance = [];
-let tagsUstensils = [];
-let objIngredients = [];
-let objAppliance = [];
-let objUstensils = [];
-let objTags = [];
+// let tagsIngredients = [];
+// let tagsAppliance = [];
+// let tagsUstensils = [];
+// let objIngredients = [];
+// let objAppliance = [];
+// let objUstensils = [];
+// let objTags = [];
+let objTags1 = { ingredients:[], appliances:[], ustensils:[], general: []};
 // let tagsDescription = [];
 // let tagsName = [];
-let itemArray = [];
+let suggestArrayList = [];
 let ingrdSuggest;
 let itemToLowerCase;
 let recipesArray = [];
@@ -56,56 +56,41 @@ function initData(){
     .then(res => res.json())
     .then( function(datas){
       for ( data of datas.recipes){
-        recipesArray.push(data);  
+        recipesArray.push(data);
         let cache = [];
         recipesArray = recipesArray.filter( elmt => {
           return cache[elmt.id]? 0 : cache[elmt.id]=1;
         });
       }
       console.log(recipesArray);
-      setData();
+      showCards(recipesArray);
       suggestList(recipesArray);
-      // console.log(ingredientsList.sort())
-      sectionR = document.getElementsByClassName('sectionRecipe');
+
     })
     .catch(error => alert ("Erreur : " + error));
   }
-
-function setData(){
-  showCards(recipesArray);
-}
-
-function updateData(){
-  // const found = ingredientsList.some( res => { console.log(tagsArray[0] === res) }) // autre facon de faire
-  console.log(tagsArray)
-  // suggests.innerHTML = "";
-  if(tagsArray.length > 0){
-    tagsArray.forEach ( elmt => {
-    articleRecipes.innerHTML = "";
-    console.log(elmt)
-    let nameListF = nameList.some( res => {
-      res = res.toLowerCase();
-      return res.includes(elmt.toLowerCase());
-    })
-    console.log(nameListF);
-    if (ingredientsList.includes(elmt) || ustensilsList.includes(elmt) || applianceList.includes(elmt) || nameListF ){
-      let cache = {};
-      updateRecipe = updateRecipe.filter(function(elem){
-        return cache[elem.id]?0:cache[elem.id]=1;
-        ;})
-        console.log(updateRecipe);
-        numb = 0;
-  showCards(updateRecipe);
-  suggestList(updateRecipe);
+  
+  function updateData(){
+    // const found = ingredientsList.some( res => { console.log(tagsArray[0] === res) }) // autre facon de faire
+    console.log(tagsArray)
+    console.log(tagsArray.length)
+    console.log(updateRecipe);
+    if(objTags1.ingredients.length > 0 || objTags1.appliances.length > 0 || objTags1.ustensils.length > 0 || objTags1.general.length > 0 ){
+      console.log(updateRecipe.length)
+      if ( updateRecipe.length > 0){
+        console.log(objTags1.ingredients)
+        articleRecipes.innerHTML = "";
+        showCards(updateRecipe);
+        suggestList(updateRecipe);
     }else{
-      const messageError = elmtFactory('p', { class: "ErrorMessage"}, "Aucun résultat ne correspont à votr recherche");
-      articleRecipes.appendChild(messageError);
-
-    }
-  }
-  )}else{
-    // articleRecipes.innerHTML = "";
-    initData();
+      articleRecipes.innerHTML = "";
+      const messageError = elmtFactory('p', { class: "ErrorMessage"}, " Aucune recette ne correspond à votre critère");
+          articleRecipes.appendChild(messageError);
+    
+        }
+  } else {
+    articleRecipes.innerHTML = "";
+    render();
   }
 }
 
@@ -157,9 +142,10 @@ const logo = elmtFactory('img',{ id: 'logo', src: './public/chiefCap.svg'}, );
 
 // Search
 const title = elmtFactory('h1', { id: 'header_h1'}, "Les petits plats")
-const formSearchBar = elmtFactory('form', { class: "form_search"},elmtFactory('input', { type: 'text', class: 'header_nav', autocomplete: 'off', placeholder: "Rechercher un ingredient, appareil, ustensiles ou une recette"},),
-elmtFactory('button', { type: 'submit'},
-elmtFactory('i',{ class: 'bi bi-search'}, ) ),
+const formSearchBar = elmtFactory('form', { class: "form_search"},
+          elmtFactory('input', { type: 'text', class: 'header_nav', autocomplete: 'off', placeholder: "Rechercher un ingredient, appareil, ustensiles ou une recette", minlength: "3" },),
+          elmtFactory('button', { type: 'submit'},
+          elmtFactory('i',{ class: 'bi bi-search'}, ) ),
     )
 const topNav = elmtFactory('input', { type: 'text', class: 'header_nav'},
   elmtFactory('i',{ class: 'bi bi-search'}, ));
@@ -175,6 +161,7 @@ const selectsArticle = elmtFactory('article', { class: 'article_selects'},
 
 // main - show all recipe
 function showCards (element) {
+  numb = 0;
   for ( recipe of element){ 
     let Recipe = new RecipeClass(recipe.id, recipe.name, recipe.servings, recipe.ingredients, recipe.time, recipe.description, recipe.appliance, recipe.ustensils) 
 
@@ -195,12 +182,13 @@ function showCards (element) {
     articleRecipes.appendChild(sectionRecipe);
     liRecipe = Recipe.ingredients;
     ulRecipe = document.getElementsByClassName('recipe_ul') ;
-    for ( li of  liRecipe){
-      if ( li.unit){
-        let ingredientLi = elmtFactory('li', { class: 'li_recipe'}, li.ingredient +': ' + li.quantity + li.unit )
+    let ingredientLi = "";
+    for ( li of liRecipe){
+      if (li.unit){
+        ingredientLi = elmtFactory('li', { class: 'li_recipe'}, li.ingredient +': ' + li.quantity + li.unit )
         ulRecipe[numb].appendChild(ingredientLi);
       } else {
-        let ingredientLi = elmtFactory('li', { class: 'li_recipe'}, li.ingredient +': ' + li.quantity )
+        ingredientLi = elmtFactory('li', { class: 'li_recipe'}, li.ingredient +': ' + li.quantity )
         ulRecipe[numb].appendChild(ingredientLi);
       }
     }
@@ -211,46 +199,39 @@ function showCards (element) {
 
 //  run function to update
 initData();
-function render() {
-  sectionRecipe.innerHTML = "";
-  (recipesArray.length !== 0) ?  updateData() : setData() ;
+function render(){
+ if(recipesArray.length !== 0){ updateData() }else{initData()}  ;
 };
-
 
 // addEventListener on input
 for ( let input of inputSearch){
   input.addEventListener('keyup', (e) => {
     e.preventDefault();
-    inputEvent(e,input)
-  })
-}
-
-function inputEvent(e, input){
-    let inputValue;
-    let lettersLowerCase;
-    let brutItem;
     if ( updateRecipe.length === 0 ){
       showSuggest(recipesArray, e, input)
     } else {
       showSuggest(updateRecipe, e, input)
     }
+  })
 }
 
+// show overtime suggest && take elmt for the suggest list to stock into suggestArraList
 function showSuggest(array, e, input){
   suggests = e.target.parentNode.lastElementChild;
   inputId = input.getAttribute('id');
   let inputValue = input.value ;
+  console.log(inputValue)
   let lettersLowerCase = inputValue.toLowerCase();
   let brutItem;
   console.log(input === inputSearch[0]);
   input !== inputSearch[0] ? suggests.innerHTML = "" : "";
-  itemArray = [] 
-  
-  array.forEach( (elmt) => {
-    if(inputValue.length>=3){
+  suggestArrayList = [] ;
+  if(inputValue.length >= 3 ){
+    inputValue = inputValue[0].toUpperCase() + inputValue.slice(1) ;
+    array.forEach( (elmt) => {
       for ( let [key, value] of Object.entries(elmt)){
         if( key === inputId && typeof value === 'object'){
-          for( item of value) {
+          for( item of value){
             if(typeof item === "string" ){
               itemToLowerCase = item.toLowerCase();
               brutItem = item;
@@ -259,69 +240,69 @@ function showSuggest(array, e, input){
               brutItem = item.ingredient;
             };
             if(itemToLowerCase.includes(lettersLowerCase)){
-                  itemArray.push(brutItem);
-                  itemArray = [...new Set(itemArray)];
-            }
-          } 
-        }else if( key === inputId && typeof value === 'string' && value.toLowerCase().includes(inputValue.toLowerCase())){
-          itemArray.push(value);
-          itemArray = [...new Set(itemArray)];
-        } else if ( inputId === null ){
-            if( isNaN(value) && key !== 'description'){
-              for( item of value) {
-                if( typeof value === 'string' && value.toLowerCase().includes(inputValue.toLowerCase()) ){
-                  itemArray.push(value);
-                  itemArray = [...new Set(itemArray)];
-                } else if (typeof value === 'object' && typeof item === 'string' && item.toLowerCase().includes(inputValue.toLowerCase())){
-                  itemArray.push(item);
-                  itemArray = [...new Set(itemArray)];
-                } else if( typeof value === 'object' && typeof item === 'object' && item.ingredient.toLowerCase().includes(inputValue.toLowerCase())){
-                    itemArray.push(item.ingredient);
-                    itemArray = [...new Set(itemArray)];
-                  }
+              suggestArrayList.push(brutItem);
+              suggestArrayList = [...new Set(suggestArrayList)];
+              console.log(suggestArrayList);
+          }
+        } 
+      }else if( key === inputId && typeof value === 'string' && value.toLowerCase().includes(inputValue.toLowerCase())){
+        suggestArrayList.push(value);
+        suggestArrayList = [...new Set(suggestArrayList)];
+      } else if ( inputId === null ){
+        if( isNaN(value) && key !== 'description'){
+          for( item of value) {
+            if( typeof value === 'string' && value.toLowerCase().includes(inputValue.toLowerCase()) ){
+              suggestArrayList.push(value);
+              suggestArrayList = [...new Set(suggestArrayList)];
+              console.log(value)
+            } else if (typeof value === 'object' && typeof item === 'string' && item.toLowerCase().includes(inputValue.toLowerCase())){
+              suggestArrayList.push(item);
+              suggestArrayList = [...new Set(suggestArrayList)];
+            } else if( typeof value === 'object' && typeof item === 'object' && item.ingredient.toLowerCase().includes(inputValue.toLowerCase())){
+              suggestArrayList.push(item.ingredient);
+              suggestArrayList = [...new Set(suggestArrayList)];
                 }
               }
             }
+          }
+        }
+      })
+      if(input !== inputSearch[0]){
+        suggests.hidden = false;
+        input.parentNode.className = "col col-lg-6";
+        input.style.width = "92.8%";
       }
+    } else if (suggestArrayList.length === 0 && input !== inputSearch[0] ){
+      suggests.hidden = true;
+      input.parentNode.className = "col col-lg-2";
+      input.style.width = "110px";
     }
-  })
-
-   if(input !== inputSearch[0]){itemArray.forEach( sug => {
-    ingrdSuggest = elmtFactory('p', { class: "suggest", value: inputId, onclick: "suggestFunction(this)"}, sug )
-    suggests.appendChild(ingrdSuggest);
-  }) }
-  console.log(itemArray);
+    if(input !== inputSearch[0]){suggestArrayList.forEach( sug => {
+      ingrdSuggest = elmtFactory('p', { class: "suggest", value: inputId, onclick: "suggestSelect(this)"}, sug )
+      suggests.appendChild(ingrdSuggest);
+    }) }
 }
 
-function suggestFunction(element){
-  let parent = element.parentNode.parentNode.firstChild ;
-  console.log(parent.id)
+// event when you click on one suggest in list 
+function suggestSelect(element){
   let cacheUpdate = [];
   let tag = [];
   tags.innerHTML = "";
-  let text = element.textContent;
+  let text = element.textContent; // collect the text 
   let valuElmt = element.getAttribute('value');
 
   if( valuElmt === 'ingredients' ){
-    tagsIngredients.push(text);
-    tagsIngredients = [...new Set(tagsIngredients)];
-    console.log(tagsIngredients.length);
+    objTags1.ingredients.push(text); 
+    objTags1.ingredients = [...new Set(objTags1.ingredients)]; 
   } else if( valuElmt === 'appliance'){
-    tagsAppliance.push(text);
-    tagsAppliance = [...new Set(tagsAppliance)];
-    console.log(tagsAppliance);
+    objTags1.appliances.push(text); 
+    objTags1.appliances = [...new Set(objTags1.appliances)]; 
   } else {
-    tagsUstensils.push(text)
-    tagsUstensils = [...new Set(tagsUstensils)];
-    console.log(tagsUstensils);
+    objTags1.ustensils.push(text); 
+    objTags1.ustensils = [...new Set(objTags1.ustensils)]; 
   }
-  console.log(updateRecipe);
-  tagsArray.push(text);
-tagsArray = [...new Set(tagsArray)];
-tagsArray.forEach( elmt => {
-  tag = elmtFactory('p', { class: "bg-primary text-white"}, elmt);
-  tags.appendChild(tag);
-})
+  console.log(suggestArrayList);
+showTags()
 
 if( updateRecipe.length === 0 ){
     recipesArray.forEach ( elmt => {
@@ -358,65 +339,58 @@ if( updateRecipe.length === 0 ){
   }
   )}
 
-
-
-
+console.log(updateRecipe)
 updateRecipe.forEach( elmt => {
-  // console.log(elmt)
   for ( let [key, value] of Object.entries(elmt)){
     if( key === inputId && typeof value === 'object'){
       for ( let item of value){
         if( typeof item === 'object' && item.ingredient.toLowerCase() === text.toLowerCase()){
-          tagsIngredients.forEach( igrd => {
+          objTags1.ingredients.forEach( igrd => {
             if( item.ingredient.toLowerCase() === igrd.toLowerCase()){
-              articleRecipes.innerHTML = "";
-              updateRecipe.push(elmt);
+              // articleRecipes.innerHTML = "";
+              // updateRecipe.push(elmt);
               cacheUpdate.push(elmt);
             }
           })
         } else if (typeof item === 'string' && item.toLowerCase() === text.toLowerCase()){
-            tagsUstensils.forEach( ustl => {
+            objTags1.ustensils.forEach( ustl => {
               if( item.toLowerCase() === ustl.toLowerCase()){
                 console.log(elmt)
-                articleRecipes.innerHTML = "";
-                updateRecipe.push(elmt);
+                // articleRecipes.innerHTML = "";
+                // updateRecipe.push(elmt);
                 cacheUpdate.push(elmt);
                }
               })
             }
           }
         } else if ( key === inputId && typeof value === 'string' && value.toLowerCase() === text.toLowerCase() ){
-          tagsAppliance.forEach( apl => {
+          objTags1.appliances.forEach( apl => {
             if( apl.toLowerCase() === apl.toLowerCase()){
               console.log(elmt);
-              articleRecipes.innerHTML = "";
-          updateRecipe.push(elmt);
+              // articleRecipes.innerHTML = "";
+          // updateRecipe.push(elmt);
           cacheUpdate.push(elmt);
             }
           })
-          
-
         }
       }
     })
-
+  articleRecipes.innerHTML = "";
   cacheUpdate = [...new Set(cacheUpdate)];
   updateRecipe = [...cacheUpdate];
   console.log(updateRecipe);
   element.textContent = "vide";
+  console.log(updateRecipe)
   render();
 }
 
 const spans = document.getElementsByTagName('span');
 
 for ( let span of spans){
-  span.nextElementSibling.hidden = true;
   span.addEventListener('click', (e) => {
-    // e.preventDefault();
     let spanValue = span.getAttribute('value');
     let spanValueM = spanValue[0].toUpperCase() + spanValue.slice(1);
     let suggestById = "suggests"+ spanValueM ;
-    // console.log(suggestById);
     let suggestId = document.getElementById(suggestById);
     suggestId.innerHTML = "";
     let nomming = spanValue+"List";
@@ -434,14 +408,16 @@ for ( let span of spans){
     }
     span.parentNode.className = "col col-lg-6";
     span.parentNode.hidden = false;
+    console.log(thisInput);
     thisInput.style.width = "92.8%";
   })
 }
 
 const arrayId = ['suggestsIngredients', 'suggestsAppliance', 'suggestsUstensils'];
-
 for (let id of arrayId){
+  document.getElementById(id).hidden = true;
   document.addEventListener('click', (e)=>{
+    e.preventDefault();
     let word = id.slice(8).toLowerCase();
     let spanValue;
 
@@ -459,78 +435,29 @@ for (let id of arrayId){
   })
 }
 
-
 function listFunction(element){
   let tag = [];
   tags.innerHTML = "";
   let text = element.textContent;
   let valuElmt = element.getAttribute('value');
   let valueM = valuElmt[0].toUpperCase() + valuElmt.slice(1);
-    let suggestId = "suggests"+ valueM ;
-    document.getElementById(valuElmt).parentNode.className = "col col-lg-2";
-    document.getElementById(valuElmt).parentNode.lastElementChild.hidden = true;
-
+  let suggestId = "suggests"+ valueM ;
+  document.getElementById(valuElmt).parentNode.className = "col col-lg-2";
+  document.getElementById(valuElmt).parentNode.lastElementChild.hidden = true;
+  
+  // push into respective arrray to have selected
   if( valuElmt === 'ingredients' ){
-    tagsIngredients.push(text);
-    tagsIngredients = [...new Set(tagsIngredients)];
-    tagsArray.push(text);
-      objTags.push({ ingredient : ''+text+''});
-      let cache = {};
-      objIngredients = objIngredients.filter(function(elmt){
-        return cache[elmt.ingredient]?0:cache[elmt.ingredient]=1;
-        ;})
-        console.log(objTags);
+    objTags1.ingredients.push(text); 
+    objTags1.ingredients = [...new Set(objTags1.ingredients)]; 
   } else if( valuElmt === 'appliance'){
-    tagsAppliance.push(text);
-    tagsAppliance = [...new Set(tagsAppliance)];
-    tagsArray.push(text);
-    objTags.push({ appliance : ''+text+''});
-      let cache = {};
-      objTags = objTags.filter(function(elmt){
-        return cache[elmt.appliance]?0:cache[elmt.appliance]=1;
-        ;})
-        console.log(objTags);
-
+    objTags1.appliances.push(text); 
+    objTags1.appliances = [...new Set(objTags1.appliances)]; 
   } else if ( valuElmt === 'ustensils') {
-    tagsUstensils.push(text)
-    tagsUstensils = [...new Set(tagsUstensils)];
-    tagsArray.push(text);
-    objTags.push({ ustensil : ''+text+''});
-      let cache = {};
-      objTags = objTags.filter(function(elmt){
-        return cache[elmt.ustensil]?0:cache[elmt.ustensil]=1;
-        ;})
-      console.log(objTags);
-    }
-    
-    
-//   tagsArray.push(text);
-tagsArray = [...new Set(tagsArray)];
-  objTags.forEach( elmt => {
-    for( let [key, value] of Object.entries(elmt)){
-      console.log(key)
-      if( key === "ingredient"){
-        tag = elmtFactory( 'div', { class: "tag bg-primary text-white"},
-          elmtFactory('p', { }, value),
-          elmtFactory( 'i', { class: "bi bi-x-circle", onclick: "removeTag('"+value+"')"},)
-        );
-      tags.appendChild(tag);
-    } else if( key === "appliance"){
-      tag = elmtFactory( 'div', { class: "tag bg-success text-white"},
-        elmtFactory('p', { }, value),
-        elmtFactory( 'i', { class: "bi bi-x-circle", onclick: "removeTag('"+value+"')"},)
-      );
-      tags.appendChild(tag);
-    } else if( key === "ustensil"){
-      tag = elmtFactory( 'div', { class: "tag bg-danger text-white"},
-        elmtFactory('p', { }, value),
-        elmtFactory( 'i', { class: "bi bi-x-circle", onclick: "removeTag('"+value+"')"},)
-      );
-      tags.appendChild(tag);
-    }
+
+    objTags1.ustensils.push(text); 
+    objTags1.ustensils = [...new Set(objTags1.ustensils)]; 
   }
-})
-  console.log(tagsIngredients)
+  showTags();
   if( updateRecipe.length === 0){
     sortArray( recipesArray, valuElmt, text );
     eval(suggestId).innerHTML = "";
@@ -539,54 +466,94 @@ tagsArray = [...new Set(tagsArray)];
     eval(suggestId).innerHTML = "";
     suggestList(updateRecipe);
   }
+  console.log(tagsArray);
   eval(suggestId).innerHTML = "";
   render();
 }
 
+function showTags(){
+  tags.innerHTML = "";
+  for ( let [key, item] of Object.entries(objTags1)){
+    console.log(key === "ingredients");
+    if (key === "general"){
+      item.forEach( value => {
+        tag = elmtFactory( 'div', { class: "tag bg-secondary text-white"},
+        elmtFactory('p', { }, value),
+        elmtFactory( 'i', { class: "bi bi-x-circle", onclick: "removeTag('"+value+"')"},)
+        );
+        tags.appendChild(tag);
+      })
+    }
+    else if(key === "ingredients" ){
+      item.forEach( value => {
+        tag = elmtFactory( 'div', { class: "tag bg-primary text-white"},
+        elmtFactory('p', { }, value),
+        elmtFactory( 'i', { class: "bi bi-x-circle", onclick: "removeTag('"+value+"')"},)
+        );
+        tags.appendChild(tag);
+      })
+    } else if( key === "appliances"){
+      console.log(item)
+      item.forEach( value => {
+            tag = elmtFactory( 'div', { class: "tag bg-success text-white"},
+              elmtFactory('p', { }, value),
+              elmtFactory( 'i', { class: "bi bi-x-circle", onclick: "removeTag('"+value+"')"},)
+            );
+            tags.appendChild(tag);
+    })}else if( key === "ustensils"){
+            item.forEach( value => {
+            tag = elmtFactory( 'div', { class: "tag bg-danger text-white"},
+              elmtFactory('p', { }, value),
+              elmtFactory( 'i', { class: "bi bi-x-circle", onclick: "removeTag('"+value+"')"},)
+            );
+            tags.appendChild(tag);
+    })} else if ( key === "general"){
+            item.forEach( value => {
+            tag = elmtFactory( 'div', { class: "tag bg-secondary text-white"},
+              elmtFactory('p', { }, value),
+              elmtFactory( 'i', { class: "bi bi-x-circle", onclick: "removeTag('"+value+"')"},));
+              tags.appendChild(tag);
+          })}
+  }
+  
+}
 
+
+// sort Array with first paramatre the array to sort 
 function sortArray(array, valuElmt, text){
+  console.log( valuElmt, text)
+  articleRecipes.innerHTML = "";
   let cacheUpdate = [];
   array.forEach( elmt => {
     for ( let [key, value] of Object.entries(elmt)){
       if( key === valuElmt && typeof value === 'object'){
         for ( let item of value){
           if( typeof item === 'object' && item.ingredient.toLowerCase() === text.toLowerCase()){
-            tagsIngredients.forEach( igrd => {
+            objTags1.ingredients.forEach( igrd => {
               if( item.ingredient.toLowerCase() === igrd.toLowerCase()){
-                articleRecipes.innerHTML = "";
-                updateRecipe.push(elmt);
                 cacheUpdate.push(elmt);
               }
             })
           } else if (typeof item === 'string' && item.toLowerCase() === text.toLowerCase()){
-            tagsUstensils.forEach( ustl => {
+            objTags1.ustensils.forEach( ustl => {
               if( item.toLowerCase() === ustl.toLowerCase()){
-                // console.log(elmt)
-                articleRecipes.innerHTML = "";
-                updateRecipe.push(elmt);
                 cacheUpdate.push(elmt);
-                
               }
                 })
               }
             }
           } else if ( key === valuElmt && typeof value === 'string' && value.toLowerCase() === text.toLowerCase() ){
-            tagsAppliance.forEach( apl => {
+            objTags1.appliances.forEach( apl => {
               if( apl.toLowerCase() === apl.toLowerCase()){
-                // console.log(elmt);
-                articleRecipes.innerHTML = "";
-            updateRecipe.push(elmt);
             cacheUpdate.push(elmt);
               }
             })
           }
         }
       })
-      
-      
       cacheUpdate = [...new Set(cacheUpdate)];
       updateRecipe = [...cacheUpdate];
-
+      console.log(updateRecipe)
 }
 
 const buttonSearch = document.getElementsByTagName('button')[0];
@@ -596,22 +563,19 @@ buttonSearch.addEventListener('click', e => {
 })
 
 function searchMain() {
-  console.log(inputSearch[0].value);
+  let cache = {};
+  console.log(inputSearch[0].value.length);
   let research = inputSearch[0].value;
-  tagsArray.push(research);
-  objTags.push({ general : research})
+  research = research[0].toUpperCase() + research.slice(1);
+  objTags1.general.push(research)
+  objTags1.general = [...new Set(objTags1.general)];
+  console.log(objTags1);
 
-tagsArray = [...new Set(tagsArray)];
-tagsArray.forEach( elmt => {
-  tag = elmtFactory('div', { class: "tag bg-secondary text-white"},
-   elmtFactory('p', {}, elmt),
-   elmtFactory( 'i', { class: "bi bi-x-circle", onclick: "removeTag('"+elmt+"')"},))
-  tags.appendChild(tag);
-})
+  showTags();
 
   recipesArray.forEach ( elmt => {
     for ( let [key, value] of Object.entries(elmt)){
-      if( key === inputId && typeof value === 'object'){
+      if( typeof value === 'object'){
         for( item of value) {
           if(typeof item === "string" ){
             itemToLowerCase = item.toLowerCase();
@@ -623,29 +587,30 @@ tagsArray.forEach( elmt => {
           if(itemToLowerCase.includes(research.toLowerCase())){
                 updateRecipe.push(elmt);
                 console.log(key)
-                itemArray.push(brutItem);
-                itemArray = [...new Set(itemArray)];
+                suggestArrayList.push(brutItem);
+                suggestArrayList = [...new Set(suggestArrayList)];
           }
         } 
-      }else if( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase())){
+      } else if ( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase())){
+        console.log(key)
         updateRecipe.push(elmt);
-        itemArray.push(value);
-        itemArray = [...new Set(itemArray)];
+        suggestArrayList.push(value);
+        suggestArrayList = [...new Set(suggestArrayList)];
       } else if ( inputId === null ){
-          if( isNaN(value) && key !== 'description'){
+          if( isNaN(value) ){
             for( item of value) {
               if( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase()) ){
                 updateRecipe.push(elmt);
-                itemArray.push(value);
-          itemArray = [...new Set(itemArray)];
+                suggestArrayList.push(value);
+          suggestArrayList = [...new Set(suggestArrayList)];
               } else if (typeof value === 'object' && typeof item === 'string' && item.toLowerCase().includes(research.toLowerCase())){
                 updateRecipe.push(elmt);
-                itemArray.push(value);
-          itemArray = [...new Set(itemArray)];
+                suggestArrayList.push(value);
+          suggestArrayList = [...new Set(suggestArrayList)];
               } else if( typeof value === 'object' && typeof item === 'object' && item.ingredient.toLowerCase().includes(research.toLowerCase())){
                   updateRecipe.push(elmt);
-                  itemArray.push(value);
-          itemArray = [...new Set(itemArray)];
+                  suggestArrayList.push(value);
+          suggestArrayList = [...new Set(suggestArrayList)];
                 }
               }
             }
@@ -654,132 +619,56 @@ tagsArray.forEach( elmt => {
   }
   )
   console.log(updateRecipe);
+  updateRecipe = updateRecipe.filter( elmt => {
+    console.log(elmt.id)
+    return cache[elmt.id]? 0 : cache[elmt.id]=1;
+  });
+  console.log(updateRecipe);
   render();
 }
 
+
+// to update after delete a tag
 function removeTag(element) {
-  console.log(tagsIngredients)
-  tags.innerHTML = "";
-let cacheRecipe = [];
-
-
-  let indexElmtObj = objTags.map( e => {
-    for( let [key,value] of Object.entries(e)){
-      if( key === "ingredient"){
-        return e.ingredient;
-      } else if( key === "appliance"){
-        return e.appliance;
-      } else if(key === "ustensil") {
-        return e.ustensil;
-      } else {
-        return e.general;
-      }
-    }
-    console.log(tagsIngredients)
-  }).indexOf(element);
-  let indexElmtIngr = tagsIngredients.indexOf(element);
-  let indexElmtAppl = tagsAppliance.indexOf(element);
-  let indexElmtUstl = tagsUstensils.indexOf(element);
-  let indexTagsArray = tagsArray.indexOf(element);
-  console.log(indexElmtIngr);
-  
-  if( objTags.length > -1){
-    objTags.splice(indexElmtObj, 1, );
-    indexElmtIngr > -1 ? tagsIngredients.splice(indexElmtIngr, 1, ) : "";
-    indexElmtAppl > -1 ? tagsAppliance.splice(indexElmtAppl, 1, ) : "" ;
-    indexElmtUstl > -1 ? tagsUstensils.splice(indexElmtUstl, 1, ) : "" ;
-    indexTagsArray > -1 ? tagsArray.splice(indexTagsArray, 1, ) : "" ;
+  articleRecipes.innerHTML = "";
+  let cache = {};
   console.log(tagsArray)
+  tags.innerHTML = "";
+  let cacheRecipe = [];
 
-  objTags.forEach( elmt => {
-    for( let [key, value] of Object.entries(elmt)){
-      console.log(key)
-      if( key === "ingredient"){
-        tag = elmtFactory( 'div', { class: "tag bg-primary text-white"},
-          elmtFactory('p', { }, value),
-          elmtFactory( 'i', { class: "bi bi-x-circle", onclick: "removeTag('"+value+"')"},)
-        );
-      tags.appendChild(tag);
-    } else if( key === "appliance"){
-      tag = elmtFactory( 'div', { class: "tag bg-success text-white"},
-        elmtFactory('p', { }, value),
-        elmtFactory( 'i', { class: "bi bi-x-circle", onclick: "removeTag('"+value+"')"},)
-      );
-      tags.appendChild(tag);
-    } else if( key === "ustensil"){
-      tag = elmtFactory( 'div', { class: "tag bg-danger text-white"},
-        elmtFactory('p', { }, value),
-        elmtFactory( 'i', { class: "bi bi-x-circle", onclick: "removeTag('"+value+"')"},)
-      );
-      tags.appendChild(tag);
-    } else {
-      tag = elmtFactory( 'div', { class: "tag bg-secondary text-white"},
-        elmtFactory('p', { }, value),
-        elmtFactory( 'i', { class: "bi bi-x-circle", onclick: "removeTag('"+value+"')"},)
-      );
-      tags.appendChild(tag);
-    }
-  }
-})
+  let indexIngr = objTags1.ingredients.indexOf(element);
+  let indexApp = objTags1.appliances.indexOf(element);
+  let indexUstl = objTags1.ustensils.indexOf(element);
+  let indexGen = objTags1.general.indexOf(element);
+  console.log(indexIngr);
 
+  if( objTags1.ingredients.length > 0 || objTags1.appliances.length > 0 || objTags1.ustensils.length > 0 || objTags1.general.length > 0){
+    indexIngr > -1 ? objTags1.ingredients.splice(indexIngr, 1, ) : "" ;
+    indexApp > -1 ? objTags1.appliances.splice(indexApp, 1, ) : "";
+    indexUstl > -1 ? objTags1.ustensils.splice(indexUstl, 1, ) : "";
+    indexGen > -1 ? objTags1.general.splice(indexGen, 1, ) : "";
+    console.log(objTags1)
 
-console.log(updateRecipe)
-recipesArray.forEach( elmt => {
-  for ( let [key, value] of Object.entries(elmt)){
-    if( key === "ingredients" && typeof value === 'object'){
-      for ( let item of value){
-        
-        if( typeof item === 'object' && item.ingredient.toLowerCase() !== element.toLowerCase()){
-          // console.log(tagsIngredients);
-        tagsIngredients.forEach( igrd => {
-            console.log(key)
-            if( item.ingredient.toLowerCase() === igrd.toLowerCase()){
-              articleRecipes.innerHTML = "";
-              // updateRecipe.push(elmt);
-              cacheRecipe.push(elmt);
-            }
-          })
-        } else if (typeof item === 'string' && item.toLowerCase() !== element.toLowerCase()){
-          tagsUstensils.forEach( ustl => {
-            if( item.toLowerCase() === ustl.toLowerCase()){
-              console.log(elmt)
-              articleRecipes.innerHTML = "";
-              // updateRecipe.push(elmt);
-              cacheRecipe.push(elmt);
-              
-            }
-              })
-            }
-          }
-        } else if ( key === "appliance" && typeof value === 'string' && value.toLowerCase() !== element.toLowerCase() ){
-          tagsAppliance.forEach( apl => {
-            if( apl.toLowerCase() === apl.toLowerCase()){
-              console.log(elmt);
-              articleRecipes.innerHTML = "";
-              // updateRecipe.push(elmt);
-              cacheRecipe.push(elmt);
-            }
-          })
-        }
-      }
+    showTags();
+
+  for( let [key, value] of Object.entries(objTags1) ){
+    console.log(key, value)
+    key === "appliances" ? key = "appliance" : "";
+    Object.entries(value).forEach( ([index,elmt]) => {
+      console.log(index,elmt)
+      sortArray(recipesArray, key, elmt);
     })
   }
-  
-  
-  // articleRecipes.innerHTML = "";
-  //   cacheRecipe = [...new Set(cacheRecipe)];
-  //   updateRecipe = [...cacheRecipe];
     
-    cacheRecipe = [...new Set(cacheRecipe)];
-    updateRecipe = [...cacheRecipe];
-    updateRecipe = updateRecipe.filter( elmt => {
-      return cache[elmt.id]? 0 : cache[elmt.id]=1;
-    });
-    console.log(sectionR);
-  
+    
+  }
 
-// console.log(updateRecipe)
-  render();
+ if( objTags1.ingredients.length === 0 && objTags1.appliances.length === 0 && objTags1.ustensils.length === 0 && objTags1.general.length === 0 ){
+    updateRecipe = [];
+    initData();
+  } else {
+    render()
+   }
+
+ 
 }
-
-// document.body.addEventListener('click', (e)=> console.log(e.target))
