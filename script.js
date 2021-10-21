@@ -6,25 +6,11 @@ const inputUstensils = document.getElementById('ustensils');
 const inputAppliance = document.getElementById('appliance');
 const inputSearch = document.getElementsByTagName('input');
 const tags = document.getElementById('tags');
-let sectionR ;
 let suggests;
 
 // any elmts
-// let ingredientsList = [];
-// let applianceList = [];
-// let ustensilsList = [];
-// let nameList = [];
 let tagsArray = [];
-// let tagsIngredients = [];
-// let tagsAppliance = [];
-// let tagsUstensils = [];
-// let objIngredients = [];
-// let objAppliance = [];
-// let objUstensils = [];
-// let objTags = [];
 let objTags1 = { ingredients:[], appliances:[], ustensils:[], general: []};
-// let tagsDescription = [];
-// let tagsName = [];
 let suggestArrayList = [];
 let ingrdSuggest;
 let itemToLowerCase;
@@ -72,13 +58,9 @@ function initData(){
   
   function updateData(){
     // const found = ingredientsList.some( res => { console.log(tagsArray[0] === res) }) // autre facon de faire
-    console.log(tagsArray)
-    console.log(tagsArray.length)
     console.log(updateRecipe);
     if(objTags1.ingredients.length > 0 || objTags1.appliances.length > 0 || objTags1.ustensils.length > 0 || objTags1.general.length > 0 ){
-      console.log(updateRecipe.length)
       if ( updateRecipe.length > 0){
-        console.log(objTags1.ingredients)
         articleRecipes.innerHTML = "";
         showCards(updateRecipe);
         suggestList(updateRecipe);
@@ -86,8 +68,7 @@ function initData(){
       articleRecipes.innerHTML = "";
       const messageError = elmtFactory('p', { class: "ErrorMessage"}, " Aucune recette ne correspond à votre critère");
           articleRecipes.appendChild(messageError);
-    
-        }
+    }
   } else {
     articleRecipes.innerHTML = "";
     render();
@@ -106,7 +87,6 @@ function suggestList(array){
         ingredientsList.push(ingredient);
       });
       elmt.ustensils.forEach(app =>{ 
-          // app = app[0].toUpperCase() + app.slice(1);
           ustensilsList.push(app)
         });
       applianceList.push(elmt.appliance);
@@ -117,7 +97,6 @@ function suggestList(array){
   ustensilsList = [...new Set(ustensilsList)];
   applianceList = [...new Set(applianceList)];
   nameList = [...new Set(nameList)];
-  // console.log(ingredientsList);
 }
 // factory node
 const elmtFactory = (nodeName, attribute, ...children) => {
@@ -220,10 +199,8 @@ function showSuggest(array, e, input){
   suggests = e.target.parentNode.lastElementChild;
   inputId = input.getAttribute('id');
   let inputValue = input.value ;
-  console.log(inputValue)
   let lettersLowerCase = inputValue.toLowerCase();
   let brutItem;
-  console.log(input === inputSearch[0]);
   input !== inputSearch[0] ? suggests.innerHTML = "" : "";
   suggestArrayList = [] ;
   if(inputValue.length >= 3 ){
@@ -242,7 +219,6 @@ function showSuggest(array, e, input){
             if(itemToLowerCase.includes(lettersLowerCase)){
               suggestArrayList.push(brutItem);
               suggestArrayList = [...new Set(suggestArrayList)];
-              console.log(suggestArrayList);
           }
         } 
       }else if( key === inputId && typeof value === 'string' && value.toLowerCase().includes(inputValue.toLowerCase())){
@@ -254,7 +230,6 @@ function showSuggest(array, e, input){
             if( typeof value === 'string' && value.toLowerCase().includes(inputValue.toLowerCase()) ){
               suggestArrayList.push(value);
               suggestArrayList = [...new Set(suggestArrayList)];
-              console.log(value)
             } else if (typeof value === 'object' && typeof item === 'string' && item.toLowerCase().includes(inputValue.toLowerCase())){
               suggestArrayList.push(item);
               suggestArrayList = [...new Set(suggestArrayList)];
@@ -339,7 +314,6 @@ if( updateRecipe.length === 0 ){
   }
   )}
 
-console.log(updateRecipe)
 updateRecipe.forEach( elmt => {
   for ( let [key, value] of Object.entries(elmt)){
     if( key === inputId && typeof value === 'object'){
@@ -378,9 +352,7 @@ updateRecipe.forEach( elmt => {
   articleRecipes.innerHTML = "";
   cacheUpdate = [...new Set(cacheUpdate)];
   updateRecipe = [...cacheUpdate];
-  console.log(updateRecipe);
   element.textContent = "vide";
-  console.log(updateRecipe)
   render();
 }
 
@@ -474,7 +446,6 @@ function listFunction(element){
 function showTags(){
   tags.innerHTML = "";
   for ( let [key, item] of Object.entries(objTags1)){
-    console.log(key === "ingredients");
     if (key === "general"){
       item.forEach( value => {
         tag = elmtFactory( 'div', { class: "tag bg-secondary text-white"},
@@ -493,7 +464,6 @@ function showTags(){
         tags.appendChild(tag);
       })
     } else if( key === "appliances"){
-      console.log(item)
       item.forEach( value => {
             tag = elmtFactory( 'div', { class: "tag bg-success text-white"},
               elmtFactory('p', { }, value),
@@ -518,10 +488,8 @@ function showTags(){
   
 }
 
-
 // sort Array with first paramatre the array to sort 
 function sortArray(array, valuElmt, text){
-  console.log( valuElmt, text)
   articleRecipes.innerHTML = "";
   let cacheUpdate = [];
   array.forEach( elmt => {
@@ -553,7 +521,6 @@ function sortArray(array, valuElmt, text){
       })
       cacheUpdate = [...new Set(cacheUpdate)];
       updateRecipe = [...cacheUpdate];
-      console.log(updateRecipe)
 }
 
 const buttonSearch = document.getElementsByTagName('button')[0];
@@ -564,12 +531,10 @@ buttonSearch.addEventListener('click', e => {
 
 function searchMain() {
   let cache = {};
-  console.log(inputSearch[0].value.length);
   let research = inputSearch[0].value;
   research = research[0].toUpperCase() + research.slice(1);
   objTags1.general.push(research)
   objTags1.general = [...new Set(objTags1.general)];
-  console.log(objTags1);
 
   showTags();
 
@@ -586,13 +551,11 @@ function searchMain() {
           };
           if(itemToLowerCase.includes(research.toLowerCase())){
                 updateRecipe.push(elmt);
-                console.log(key)
                 suggestArrayList.push(brutItem);
                 suggestArrayList = [...new Set(suggestArrayList)];
           }
         } 
       } else if ( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase())){
-        console.log(key)
         updateRecipe.push(elmt);
         suggestArrayList.push(value);
         suggestArrayList = [...new Set(suggestArrayList)];
@@ -618,12 +581,9 @@ function searchMain() {
     }
   }
   )
-  console.log(updateRecipe);
   updateRecipe = updateRecipe.filter( elmt => {
-    console.log(elmt.id)
     return cache[elmt.id]? 0 : cache[elmt.id]=1;
   });
-  console.log(updateRecipe);
   render();
 }
 
@@ -640,28 +600,22 @@ function removeTag(element) {
   let indexApp = objTags1.appliances.indexOf(element);
   let indexUstl = objTags1.ustensils.indexOf(element);
   let indexGen = objTags1.general.indexOf(element);
-  console.log(indexIngr);
 
   if( objTags1.ingredients.length > 0 || objTags1.appliances.length > 0 || objTags1.ustensils.length > 0 || objTags1.general.length > 0){
     indexIngr > -1 ? objTags1.ingredients.splice(indexIngr, 1, ) : "" ;
     indexApp > -1 ? objTags1.appliances.splice(indexApp, 1, ) : "";
     indexUstl > -1 ? objTags1.ustensils.splice(indexUstl, 1, ) : "";
     indexGen > -1 ? objTags1.general.splice(indexGen, 1, ) : "";
-    console.log(objTags1)
 
     showTags();
 
   for( let [key, value] of Object.entries(objTags1) ){
-    console.log(key, value)
     key === "appliances" ? key = "appliance" : "";
     Object.entries(value).forEach( ([index,elmt]) => {
-      console.log(index,elmt)
       sortArray(recipesArray, key, elmt);
     })
   }
-    
-    
-  }
+}
 
  if( objTags1.ingredients.length === 0 && objTags1.appliances.length === 0 && objTags1.ustensils.length === 0 && objTags1.general.length === 0 ){
     updateRecipe = [];
