@@ -1,28 +1,18 @@
 // collect DOM elmts // branch1
+
 const header = document.getElementsByTagName('header')[0];
 const articleRecipes = document.getElementById('article_recipes');
-const inputIngredients = document.getElementById('ingredients');
+const inputIngredients = document.getElementById('ingredientsInput');
 const inputUstensils = document.getElementById('ustensils');
 const inputAppliance = document.getElementById('appliance');
-
-
-
-// let suggests;
 const inputSearch = document.getElementsByTagName('input');
 const tags = document.getElementById('tags');
 let suggests;
 
 // any elmts
-let ingredientsList = [];
-let applianceList = [];
-let ustensilsList = [];
-let namesList= [];
 let tagsArray = [];
-let tagsIngredients = [];
-let tagsAplliance = [];
-let tagsUstensils = [];
-let tagsName = [];
-let itemArray = [];
+let objTags1 = { ingredients:[], appliances:[], ustensils:[], general: []};
+let suggestArrayList = [];
 let ingrdSuggest;
 let itemToLowerCase;
 let recipesArray = [];
@@ -54,45 +44,43 @@ function initData(){
     .then( function(datas){
       for ( data of datas.recipes){
         recipesArray.push(data);
+        let cache = [];
+        recipesArray = recipesArray.filter( elmt => {
+          return cache[elmt.id]? 0 : cache[elmt.id]=1;
+        });
       }
-      setData();
+      console.log(recipesArray);
+      showCards(recipesArray);
       suggestList(recipesArray);
-      // console.log(ingredientsList.sort())
+
     })
     .catch(error => alert ("Erreur : " + error));
   }
-
-function setData(){
-  showCards(recipesArray);
-}
-
-function updateData(){
-  // const found = ingredientsList.some( res => { console.log(tagsArray[0] === res) }) // autre facon de faire
-  console.log(tagsArray)
-  tagsArray.forEach ( elmt => {
-    articleRecipes.innerHTML = "";
-    if (ingredientsList.includes(elmt) || ustensilsList.includes(elmt) || applianceList.includes(elmt) || namesList.includes(elmt)){
-      var cache = {};
-      updateRecipe = updateRecipe.filter(function(elem){
-        return cache[elem.id]?0:cache[elem.id]=1;
-        ;})
-        console.log(updateRecipe);
-        numb = 0;
-  showCards(updateRecipe)
-  suggestList(updateRecipe)
+  
+  function updateData(){
+    // const found = ingredientsList.some( res => { console.log(tagsArray[0] === res) }) // autre facon de faire
+    console.log(updateRecipe);
+    if(objTags1.ingredients.length > 0 || objTags1.appliances.length > 0 || objTags1.ustensils.length > 0 || objTags1.general.length > 0 ){
+      if ( updateRecipe.length > 0){
+        articleRecipes.innerHTML = "";
+        showCards(updateRecipe);
+        suggestList(updateRecipe);
     }else{
-      alert('Aucun résultat ne correspond à votre recherche')
-
+      articleRecipes.innerHTML = "";
+      const messageError = elmtFactory('p', { class: "ErrorMessage"}, " Aucune recette ne correspond à votre critère");
+          articleRecipes.appendChild(messageError);
     }
+  } else {
+    articleRecipes.innerHTML = "";
+    render();
   }
-  )
 }
 
 function suggestList(array){
   ingredientsList = [];
-  ustensilsList = [];
   applianceList = [];
-  namesList = [];
+  ustensilsList = [];
+  nameList = [];
   array.forEach(
     elmt => {
       elmt.ingredients.forEach(ingredient => {
@@ -100,19 +88,17 @@ function suggestList(array){
         ingredientsList.push(ingredient);
       });
       elmt.ustensils.forEach(app =>{ 
-          // app = app[0].toUpperCase() + app.slice(1);
           ustensilsList.push(app)
         });
       applianceList.push(elmt.appliance);
-      namesList.push(elmt.name);
+      nameList.push(elmt.name);
     }
   );
   ingredientsList = [...new Set(ingredientsList)];
   ustensilsList = [...new Set(ustensilsList)];
   applianceList = [...new Set(applianceList)];
+  nameList = [...new Set(nameList)];
 }
-
-
 // factory node
 const elmtFactory = (nodeName, attribute, ...children) => {
   const elmt = document.createElement(nodeName)
@@ -136,12 +122,11 @@ const logo = elmtFactory('img',{ id: 'logo', src: './public/chiefCap.svg'}, );
 
 // Search
 const title = elmtFactory('h1', { id: 'header_h1'}, "Les petits plats")
-const formSearchBar = elmtFactory('form', { class: "form_search"},elmtFactory('input', { type: 'text', class: 'header_nav', autocomplete: 'off', placeholder: "Rechercher un ingredient, appareil, ustensiles ou une recette"},),
-elmtFactory('button', { type: 'submit'},
-elmtFactory('i',{ class: 'bi bi-search'}, ) ),
-    // elmtFactory('i',{ class: 'bi bi-search'}, ),
-    elmtFactory('div', { id: 'suggestsGlobal'},
-    )  )
+const formSearchBar = elmtFactory('form', { class: "form_search"},
+          elmtFactory('input', { type: 'text', class: 'header_nav', autocomplete: 'off', placeholder: "Rechercher un ingredient, appareil, ustensiles ou une recette", minlength: "3" },),
+          elmtFactory('button', { type: 'submit'},
+          elmtFactory('i',{ class: 'bi bi-search'}, ) ),
+    )
 const topNav = elmtFactory('input', { type: 'text', class: 'header_nav'},
   elmtFactory('i',{ class: 'bi bi-search'}, ));
 
@@ -156,15 +141,18 @@ const selectsArticle = elmtFactory('article', { class: 'article_selects'},
 
 // main - show all recipe
 function showCards (element) {
+  numb = 0;
   for ( recipe of element){ 
-    let Recipe = new 
-    RecipeClass(recipe.id, recipe.name, recipe.servings, recipe.ingredients, recipe.time, recipe.description, recipe.appliance, recipe.ustensils) 
+    let Recipe = new RecipeClass(recipe.id, recipe.name, recipe.servings, recipe.ingredients, recipe.time, recipe.description, recipe.appliance, recipe.ustensils) 
 
     sectionRecipe = elmtFactory('section', {class: 'section_recipe col col-lg-4'}, 
     elmtFactory('img', { class: 'recipe_img'}, ),
     elmtFactory('div', { class: 'recipe_footer'},
       elmtFactory('h2', { class: 'recipe_h2'}, Recipe.name ),
-      elmtFactory('p', {class: 'recipe_time'}, Recipe.time.toString()),
+      elmtFactory( "div", {class: 'recipe_time'},
+      elmtFactory('i', {class: "bi bi-clock"}, ),
+      elmtFactory( 'p', {}, Recipe.time.toString() + "min"),
+       ),
       ),
     elmtFactory('div', {class:"recipe_footer"}, 
       elmtFactory('ul', { class: 'recipe_ul'}, ),
@@ -174,13 +162,13 @@ function showCards (element) {
     articleRecipes.appendChild(sectionRecipe);
     liRecipe = Recipe.ingredients;
     ulRecipe = document.getElementsByClassName('recipe_ul') ;
-    for ( li of  liRecipe){
-      if ( li.unit){
-        let liUnit = li.unit;
-        let ingredientLi = elmtFactory('li', { class: 'li_recipe'}, li.ingredient +': ' + li.quantity + li.unit )
+    let ingredientLi = "";
+    for ( li of liRecipe){
+      if (li.unit){
+        ingredientLi = elmtFactory('li', { class: 'li_recipe'}, li.ingredient +': ' + li.quantity + li.unit )
         ulRecipe[numb].appendChild(ingredientLi);
       } else {
-        let ingredientLi = elmtFactory('li', { class: 'li_recipe'}, li.ingredient +': ' + li.quantity )
+        ingredientLi = elmtFactory('li', { class: 'li_recipe'}, li.ingredient +': ' + li.quantity )
         ulRecipe[numb].appendChild(ingredientLi);
       }
     }
@@ -191,187 +179,181 @@ function showCards (element) {
 
 //  run function to update
 initData();
-function render() {
-  (recipesArray.length !== 0) ?  updateData() : setData() ;
+function render(){
+ if(recipesArray.length !== 0){ updateData() }else{initData()}  ;
 };
 
 // addEventListener on input
 for ( let input of inputSearch){
   input.addEventListener('keyup', (e) => {
-    console.log(e.key)
-    inputEvent(e,input);
     e.preventDefault();
-  })
-
-  input.addEventListener('keydown', (e) => {
-    if( e.key === "enter"){
-      e.stopPropagation();
-      e.preventDefault();
-      return false
-    }
-    console.log(e.key);
-  })
-}
-
-function inputEvent(e, input){
-    let inputValue;
-    let lettersLowerCase;
-    let brutItem;
     if ( updateRecipe.length === 0 ){
       showSuggest(recipesArray, e, input)
     } else {
       showSuggest(updateRecipe, e, input)
     }
-    
+  })
 }
 
+// show overtime suggest && take elmt for the suggest list to stock into suggestArraList
 function showSuggest(array, e, input){
   suggests = e.target.parentNode.lastElementChild;
   inputId = input.getAttribute('id');
   let inputValue = input.value ;
   let lettersLowerCase = inputValue.toLowerCase();
-  suggests.innerHTML = "";
-  itemArray = [];
-
-  if(inputValue.length>=3){
-    if(inputId === "ingredients"){
-      array.forEach( elmt => {
-        let foundIngrd = elmt.ingredients.some( res => {
-          let igrdLower = res.ingredient.toLowerCase();
-          if( igrdLower.includes(lettersLowerCase)){
-            itemArray.push(res.ingredient);
-            itemArray = [...new Set(itemArray)];
-            updateRecipe.push(elmt);
-            updateRecipe = [...new Set(updateRecipe)];
+  let brutItem;
+  input !== inputSearch[0] ? suggests.innerHTML = "" : "";
+  suggestArrayList = [] ;
+  if(inputValue.length >= 3 ){
+    inputValue = inputValue[0].toUpperCase() + inputValue.slice(1) ;
+    array.forEach( (elmt) => {
+      for ( let [key, value] of Object.entries(elmt)){
+        if( key === inputId && typeof value === 'object'){
+          for( item of value){
+            if(typeof item === "string" ){
+              itemToLowerCase = item.toLowerCase();
+              brutItem = item;
+            } else {
+              itemToLowerCase = item.ingredient.toLowerCase();
+              brutItem = item.ingredient;
+            };
+            if(itemToLowerCase.includes(lettersLowerCase)){
+              suggestArrayList.push(brutItem);
+              suggestArrayList = [...new Set(suggestArrayList)];
           }
-        });
-      });
-    }
-
-    if(inputId === "appliance"){
-      array.forEach( elmt => {
-        let applianceLower = elmt.appliance.toLowerCase();
-        if ( applianceLower.includes(lettersLowerCase)){
-          itemArray.push(elmt.appliance);
-          itemArray = [...new Set(itemArray)];
-          updateRecipe.push(elmt);
-          updateRecipe = [...new Set(updateRecipe)];
+        } 
+      }else if( key === inputId && typeof value === 'string' && value.toLowerCase().includes(inputValue.toLowerCase())){
+        suggestArrayList.push(value);
+        suggestArrayList = [...new Set(suggestArrayList)];
+      } else if ( inputId === null ){
+        if( isNaN(value) && key !== 'description'){
+          for( item of value) {
+            if( typeof value === 'string' && value.toLowerCase().includes(inputValue.toLowerCase()) ){
+              suggestArrayList.push(value);
+              suggestArrayList = [...new Set(suggestArrayList)];
+            } else if (typeof value === 'object' && typeof item === 'string' && item.toLowerCase().includes(inputValue.toLowerCase())){
+              suggestArrayList.push(item);
+              suggestArrayList = [...new Set(suggestArrayList)];
+            } else if( typeof value === 'object' && typeof item === 'object' && item.ingredient.toLowerCase().includes(inputValue.toLowerCase())){
+              suggestArrayList.push(item.ingredient);
+              suggestArrayList = [...new Set(suggestArrayList)];
+                }
+              }
+            }
+          }
         }
-      });
+      })
+      if(input !== inputSearch[0]){
+        suggests.hidden = false;
+        input.parentNode.className = "col col-lg-6";
+        input.style.width = "92.8%";
+      }
+    } else if (suggestArrayList.length === 0 && input !== inputSearch[0] ){
+      suggests.hidden = true;
+      input.parentNode.className = "col col-lg-2";
+      input.style.width = "110px";
     }
-
-    if(inputId === "ustensils"){
-      array.forEach( elmt => {
-        let foundUstensil = elmt.ustensils.some( res => {
-          let ustensilsLower = res.toLowerCase();
-          if ( ustensilsLower.includes(lettersLowerCase)){
-            itemArray.push(res);
-            itemArray = [...new Set(itemArray)];
-            updateRecipe.push(elmt);
-            updateRecipe = [...new Set(updateRecipe)];
-          }
-        });
-      } );
-    }
-
-    if(inputId === null){
-      array.forEach( elmt => {
-        elmt.ingredients.forEach ( igr => {
-          if(igr.ingredient.includes(inputValue)){
-            updateRecipe.push(elmt);
-            updateRecipe = [...new Set(updateRecipe)];
-          }
-        });
-        elmt.ustensils.forEach( ustl => {
-          if(ustl.includes(inputValue)){
-            updateRecipe.push(elmt);
-            updateRecipe = [...new Set(updateRecipe)];
-          }
-        });
-        if( elmt.appliance.toLowerCase().includes(inputValue.toLowerCase())){
-          updateRecipe.push(elmt);
-          updateRecipe = [...new Set(updateRecipe)];
-        }
-      });
-    }
-  }
-  itemArray.forEach( sug => {
-    ingrdSuggest = elmtFactory('p', { class: "suggest", value: inputId, onclick: "suggestFunction(this)"}, sug );
-    suggests.appendChild(ingrdSuggest);
-  }) ;
+    if(input !== inputSearch[0]){suggestArrayList.forEach( sug => {
+      ingrdSuggest = elmtFactory('p', { class: "suggest", value: inputId, onclick: "suggestSelect(this)"}, sug )
+      suggests.appendChild(ingrdSuggest);
+    }) }
 }
 
-
-// function on suggests when we click on a suggest
-function suggestFunction(element){
+// event when you click on one suggest in list 
+function suggestSelect(element){
   let cacheUpdate = [];
-  // updateRecipe = [];
   let tag = [];
   tags.innerHTML = "";
-  let text = element.textContent;
+  let text = element.textContent; // collect the text 
   let valuElmt = element.getAttribute('value');
-  let valueM = valuElmt[0].toUpperCase() +valuElmt.slice(1);
-  let suggestById = "suggests"+ valueM ;
-  console.log(element);
 
   if( valuElmt === 'ingredients' ){
-    tagsIngredients.push(text);
-    tagsIngredients = [...new Set(tagsIngredients)];
-    updateRecipe.forEach( elmt => {
-      console.log(elmt);
-      const foundIngrd = elmt.ingredients.some( res => {
-        let igrdLower = res.ingredient.toLowerCase();
-        if( igrdLower === text.toLowerCase() ){
-          articleRecipes.innerHTML = "";
-          updateRecipe.push(elmt);
-          cacheUpdate.push(elmt);
-          console.log(elmt);
-         inputIngredients.value = "";
-        }
-      })
-    })
+    objTags1.ingredients.push(text); 
+    objTags1.ingredients = [...new Set(objTags1.ingredients)]; 
   } else if( valuElmt === 'appliance'){
-    tagsAplliance.push(text);
-    tagsAplliance = [...new Set(tagsAplliance)];
-    console.log(tagsAplliance);
-    updateRecipe.forEach( elmt => {
-      let applianceLower = elmt.appliance.toLowerCase();
-      if( applianceLower === text.toLowerCase()){
-        articleRecipes.innerHTML = "";
-          updateRecipe.push(elmt);
+    objTags1.appliances.push(text); 
+    objTags1.appliances = [...new Set(objTags1.appliances)]; 
+  } else {
+    objTags1.ustensils.push(text); 
+    objTags1.ustensils = [...new Set(objTags1.ustensils)]; 
+  }
+  console.log(suggestArrayList);
+showTags()
+
+if( updateRecipe.length === 0 ){
+    recipesArray.forEach ( elmt => {
+    for ( let [key, value] of Object.entries(elmt)){
+      if( key === inputId && typeof value === 'object'){
+        for( item of value) {
+          if(typeof item === "string" ){
+            itemToLowerCase = item.toLowerCase();
+            brutItem = item;
+          } else {
+            itemToLowerCase = item.ingredient.toLowerCase();
+            brutItem = item.ingredient;
+          };
+          if(itemToLowerCase.includes(text.toLowerCase())){
+                updateRecipe.push(elmt);
+          }
+        } 
+      }else if( key === inputId && typeof value === 'string' && value.toLowerCase().includes(text.toLowerCase())){
+        updateRecipe.push(elmt);
+      } else if ( inputId === null ){
+          if( isNaN(value) && key !== 'description'){
+            for( item of value) {
+              if( typeof value === 'string' && value.toLowerCase().includes(text.toLowerCase()) ){
+                updateRecipe.push(elmt);
+              } else if (typeof value === 'object' && typeof item === 'string' && item.toLowerCase().includes(text.toLowerCase())){
+                updateRecipe.push(elmt);
+              } else if( typeof value === 'object' && typeof item === 'object' && item.ingredient.toLowerCase().includes(text.toLowerCase())){
+                  updateRecipe.push(elmt);
+                }
+              }
+            }
+          }
+    }
+  }
+  )}
+
+updateRecipe.forEach( elmt => {
+  for ( let [key, value] of Object.entries(elmt)){
+    if( key === inputId && typeof value === 'object'){
+      for ( let item of value){
+        if( typeof item === 'object' && item.ingredient.toLowerCase() === text.toLowerCase()){
+          objTags1.ingredients.forEach( igrd => {
+            if( item.ingredient.toLowerCase() === igrd.toLowerCase()){
+              // articleRecipes.innerHTML = "";
+              // updateRecipe.push(elmt);
+              cacheUpdate.push(elmt);
+            }
+          })
+        } else if (typeof item === 'string' && item.toLowerCase() === text.toLowerCase()){
+            objTags1.ustensils.forEach( ustl => {
+              if( item.toLowerCase() === ustl.toLowerCase()){
+                console.log(elmt)
+                // articleRecipes.innerHTML = "";
+                // updateRecipe.push(elmt);
+                cacheUpdate.push(elmt);
+               }
+              })
+            }
+          }
+        } else if ( key === inputId && typeof value === 'string' && value.toLowerCase() === text.toLowerCase() ){
+          objTags1.appliances.forEach( apl => {
+            if( apl.toLowerCase() === apl.toLowerCase()){
+              console.log(elmt);
+              // articleRecipes.innerHTML = "";
+          // updateRecipe.push(elmt);
           cacheUpdate.push(elmt);
-          console.log(elmt);
-         inputAppliance.value = "";
+            }
+          })
+        }
       }
     })
-  } else if( valuElmt === 'ustensils'){
-    tagsUstensils.push(text)
-    tagsUstensils = [...new Set(tagsUstensils)];
-    updateRecipe.forEach( elmt=> {
-      const foundUstensil = elmt.ustensils.some( res => {
-        let ustensilsLower = res.toLowerCase();
-        if ( ustensilsLower === text.toLowerCase()){
-          articleRecipes.innerHTML = "";
-          updateRecipe.push(elmt);
-          cacheUpdate.push(elmt);
-          console.log(elmt);
-         inputUstensils.value = "";
-        }
-      })
-    } )
-  }
-  console.log(updateRecipe);
-  tagsArray.push(text);
-tagsArray = [...new Set(tagsArray)];
-tagsArray.forEach( elmt => {
-  tag = elmtFactory('p', { class: "bg-primary text-white"}, elmt);
-  tags.appendChild(tag);
-})
-  console.log(updateRecipe);
+  articleRecipes.innerHTML = "";
   cacheUpdate = [...new Set(cacheUpdate)];
   updateRecipe = [...cacheUpdate];
-  console.log(eval(suggestById));
-  eval(suggestById).innerHTML = "";
+  element.textContent = "vide";
   render();
 }
 
@@ -379,112 +361,276 @@ const spans = document.getElementsByTagName('span');
 
 for ( let span of spans){
   span.addEventListener('click', (e) => {
-    // e.preventDefault();
     let spanValue = span.getAttribute('value');
     let spanValueM = spanValue[0].toUpperCase() + spanValue.slice(1);
     let suggestById = "suggests"+ spanValueM ;
     let suggestId = document.getElementById(suggestById);
     suggestId.innerHTML = "";
-    // let inputId = document.getElementById(suggestById);
     let nomming = spanValue+"List";
-    let dynamicName = eval(nomming)
+    let dynamicName = eval(nomming);
+    let thisInput = e.target.parentNode.previousElementSibling.getAttribute('id');
+    thisInput = document.getElementById(thisInput);
+    let i = 0;
     for( let li of dynamicName){
       let listSuggest = elmtFactory('p', { class: "suggest", value: spanValue, onclick: "listFunction(this)"}, li );
       suggestId.appendChild(listSuggest);
+      if( i === 29){
+        break;
+      }
+      i++;
     }
+    span.parentNode.className = "col col-lg-6";
+    span.parentNode.hidden = false;
+    console.log(thisInput);
+    thisInput.style.width = "92.8%";
   })
 }
 
+const arrayId = ['suggestsIngredients', 'suggestsAppliance', 'suggestsUstensils'];
+for (let id of arrayId){
+  document.getElementById(id).hidden = true;
+  document.addEventListener('click', (e)=>{
+    e.preventDefault();
+    let word = id.slice(8).toLowerCase();
+    let spanValue;
+
+    if(e.target.parentNode){
+        spanValue = e.target.parentNode.getAttribute('value');
+        if( e.target !== document.getElementById(id) && word !== spanValue ){
+          document.getElementById(id).innerHTML = "";
+          document.getElementById(id).hidden = true;
+          document.getElementById(id).parentNode.className = "col col-lg-2";
+          document.getElementById(id).parentNode.firstElementChild.style.width = "110px";
+        }else{
+          document.getElementById(id).hidden = false;
+        }
+      }
+  })
+}
 
 function listFunction(element){
-  let cacheUpdate = [];
   let tag = [];
   tags.innerHTML = "";
   let text = element.textContent;
   let valuElmt = element.getAttribute('value');
-  console.log(valuElmt)
   let valueM = valuElmt[0].toUpperCase() + valuElmt.slice(1);
-    let suggestId = "suggests"+ valueM ;
-    console.log(eval(suggestId));
+  let suggestId = "suggests"+ valueM ;
+  document.getElementById(valuElmt).parentNode.className = "col col-lg-2";
+  document.getElementById(valuElmt).parentNode.lastElementChild.hidden = true;
   
-
+  // push into respective arrray to have selected
   if( valuElmt === 'ingredients' ){
-    tagsIngredients.push(text);
-    tagsIngredients = [...new Set(tagsIngredients)];
-    console.log(tagsIngredients.length);
+    objTags1.ingredients.push(text); 
+    objTags1.ingredients = [...new Set(objTags1.ingredients)]; 
   } else if( valuElmt === 'appliance'){
-    tagsAplliance.push(text);
-    tagsAplliance = [...new Set(tagsAplliance)];
-    console.log(tagsAplliance);
-  } else {
-    tagsUstensils.push(text)
-    tagsUstensils = [...new Set(tagsUstensils)];
-    console.log(tagsUstensils);
+    objTags1.appliances.push(text); 
+    objTags1.appliances = [...new Set(objTags1.appliances)]; 
+  } else if ( valuElmt === 'ustensils') {
+
+    objTags1.ustensils.push(text); 
+    objTags1.ustensils = [...new Set(objTags1.ustensils)]; 
   }
-
-  tagsArray.push(text);
-tagsArray = [...new Set(tagsArray)];
-tagsArray.forEach( elmt => {
-  tag = elmtFactory('p', { class: "bg-primary text-white"}, elmt);
-  tags.appendChild(tag);
-})
-
+  showTags();
   if( updateRecipe.length === 0){
-    sortArray( recipesArray, cacheUpdate, valuElmt, text );
+    sortArray( recipesArray, valuElmt, text );
     eval(suggestId).innerHTML = "";
   } else {
-    sortArray(updateRecipe, cacheUpdate, valuElmt, text);
+    sortArray(updateRecipe, valuElmt, text);
     eval(suggestId).innerHTML = "";
     suggestList(updateRecipe);
   }
-  eval(suggestId).innerHTML = ""
+  console.log(tagsArray);
+  eval(suggestId).innerHTML = "";
   render();
 }
 
+function showTags(){
+  tags.innerHTML = "";
+  for ( let [key, item] of Object.entries(objTags1)){
+    if (key === "general"){
+      item.forEach( value => {
+        tag = elmtFactory( 'div', { class: "tag bg-secondary text-white"},
+        elmtFactory('p', { }, value),
+        elmtFactory( 'i', { class: "bi bi-x-circle", onclick: "removeTag('"+value+"')"},)
+        );
+        tags.appendChild(tag);
+      })
+    }
+    else if(key === "ingredients" ){
+      item.forEach( value => {
+        tag = elmtFactory( 'div', { class: "tag bg-primary text-white"},
+        elmtFactory('p', { }, value),
+        elmtFactory( 'i', { class: "bi bi-x-circle", onclick: "removeTag('"+value+"')"},)
+        );
+        tags.appendChild(tag);
+      })
+    } else if( key === "appliances"){
+      item.forEach( value => {
+            tag = elmtFactory( 'div', { class: "tag bg-success text-white"},
+              elmtFactory('p', { }, value),
+              elmtFactory( 'i', { class: "bi bi-x-circle", onclick: "removeTag('"+value+"')"},)
+            );
+            tags.appendChild(tag);
+    })}else if( key === "ustensils"){
+            item.forEach( value => {
+            tag = elmtFactory( 'div', { class: "tag bg-danger text-white"},
+              elmtFactory('p', { }, value),
+              elmtFactory( 'i', { class: "bi bi-x-circle", onclick: "removeTag('"+value+"')"},)
+            );
+            tags.appendChild(tag);
+    })} else if ( key === "general"){
+            item.forEach( value => {
+            tag = elmtFactory( 'div', { class: "tag bg-secondary text-white"},
+              elmtFactory('p', { }, value),
+              elmtFactory( 'i', { class: "bi bi-x-circle", onclick: "removeTag('"+value+"')"},));
+              tags.appendChild(tag);
+          })}
+  }
+  
+}
 
-function sortArray(array, cacheUpdate, valuElmt, text){
+// sort Array with first paramatre the array to sort 
+function sortArray(array, valuElmt, text){
+  articleRecipes.innerHTML = "";
+  let cacheUpdate = [];
   array.forEach( elmt => {
     for ( let [key, value] of Object.entries(elmt)){
-      // console.log(key, valuElmt);
       if( key === valuElmt && typeof value === 'object'){
         for ( let item of value){
           if( typeof item === 'object' && item.ingredient.toLowerCase() === text.toLowerCase()){
-            tagsIngredients.forEach( igrd => {
+            objTags1.ingredients.forEach( igrd => {
               if( item.ingredient.toLowerCase() === igrd.toLowerCase()){
-                articleRecipes.innerHTML = "";
-                updateRecipe.push(elmt);
                 cacheUpdate.push(elmt);
               }
             })
           } else if (typeof item === 'string' && item.toLowerCase() === text.toLowerCase()){
-            tagsUstensils.forEach( ustl => {
+            objTags1.ustensils.forEach( ustl => {
               if( item.toLowerCase() === ustl.toLowerCase()){
-                console.log(elmt)
-                articleRecipes.innerHTML = "";
-                updateRecipe.push(elmt);
                 cacheUpdate.push(elmt);
-                
               }
                 })
               }
             }
           } else if ( key === valuElmt && typeof value === 'string' && value.toLowerCase() === text.toLowerCase() ){
-            tagsAplliance.forEach( apl => {
+            objTags1.appliances.forEach( apl => {
               if( apl.toLowerCase() === apl.toLowerCase()){
-                console.log(elmt);
-                articleRecipes.innerHTML = "";
-            updateRecipe.push(elmt);
             cacheUpdate.push(elmt);
               }
             })
-            
-  
           }
         }
       })
-      console.log(updateRecipe);
       cacheUpdate = [...new Set(cacheUpdate)];
       updateRecipe = [...cacheUpdate];
-      console.log(updateRecipe);
 }
 
+const buttonSearch = document.getElementsByTagName('button')[0];
+buttonSearch.addEventListener('click', e => {
+  e.preventDefault();
+  searchMain();
+})
+
+function searchMain() {
+  let cache = {};
+  let research = inputSearch[0].value;
+  research = research[0].toUpperCase() + research.slice(1);
+  objTags1.general.push(research)
+  objTags1.general = [...new Set(objTags1.general)];
+
+  showTags();
+
+
+  for ( let n = 0 ; n >= 10 ; n++){
+    console.log(n)
+  }
+
+for( let [index, elmt] of Object.entries(recipesArray)){
+  for( let [item, value] of Object.entries(elmt) ){
+    if( typeof value === 'object'){
+        for( item of value) {
+          if(typeof item === "string" ){
+            itemToLowerCase = item.toLowerCase();
+            brutItem = item;
+          } else {
+            itemToLowerCase = item.ingredient.toLowerCase();
+            brutItem = item.ingredient;
+          };
+          if(itemToLowerCase.includes(research.toLowerCase())){
+                updateRecipe.push(elmt);
+                suggestArrayList.push(brutItem);
+                suggestArrayList = [...new Set(suggestArrayList)];
+          }
+        } 
+      } else if ( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase())){
+        updateRecipe.push(elmt);
+        suggestArrayList.push(value);
+        suggestArrayList = [...new Set(suggestArrayList)];
+      } else if ( inputId === null ){
+          if( isNaN(value) ){
+            for( item of value) {
+              if( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase()) ){
+                updateRecipe.push(elmt);
+                suggestArrayList.push(value);
+                suggestArrayList = [...new Set(suggestArrayList)];
+              } else if (typeof value === 'object' && typeof item === 'string' && item.toLowerCase().includes(research.toLowerCase())){
+                updateRecipe.push(elmt);
+                suggestArrayList.push(value);
+                suggestArrayList = [...new Set(suggestArrayList)];
+              } else if( typeof value === 'object' && typeof item === 'object' && item.ingredient.toLowerCase().includes(research.toLowerCase())){
+                updateRecipe.push(elmt);
+                suggestArrayList.push(value);
+                suggestArrayList = [...new Set(suggestArrayList)];
+              }
+            }
+          }
+        }
+  }
+    
+      
+}
+      
+  updateRecipe = updateRecipe.filter( elmt => {
+    return cache[elmt.id]? 0 : cache[elmt.id]=1;
+  });
+  render();
+}
+
+
+// to update after delete a tag
+function removeTag(element) {
+  articleRecipes.innerHTML = "";
+  let cache = {};
+  console.log(tagsArray)
+  tags.innerHTML = "";
+  let cacheRecipe = [];
+
+  let indexIngr = objTags1.ingredients.indexOf(element);
+  let indexApp = objTags1.appliances.indexOf(element);
+  let indexUstl = objTags1.ustensils.indexOf(element);
+  let indexGen = objTags1.general.indexOf(element);
+
+  if( objTags1.ingredients.length > 0 || objTags1.appliances.length > 0 || objTags1.ustensils.length > 0 || objTags1.general.length > 0){
+    indexIngr > -1 ? objTags1.ingredients.splice(indexIngr, 1, ) : "" ;
+    indexApp > -1 ? objTags1.appliances.splice(indexApp, 1, ) : "";
+    indexUstl > -1 ? objTags1.ustensils.splice(indexUstl, 1, ) : "";
+    indexGen > -1 ? objTags1.general.splice(indexGen, 1, ) : "";
+
+    showTags();
+
+  for( let [key, value] of Object.entries(objTags1) ){
+    key === "appliances" ? key = "appliance" : "";
+    Object.entries(value).forEach( ([index,elmt]) => {
+      sortArray(recipesArray, key, elmt);
+    })
+  }
+}
+
+ if( objTags1.ingredients.length === 0 && objTags1.appliances.length === 0 && objTags1.ustensils.length === 0 && objTags1.general.length === 0 ){
+    updateRecipe = [];
+    initData();
+  } else {
+    render()
+   }
+
+ 
+}

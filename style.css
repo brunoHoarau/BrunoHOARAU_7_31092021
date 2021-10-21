@@ -1,3 +1,8 @@
+
+body{
+  margin: 0 5%;
+
+}
 header{
   display: flex;
   align-items: center;
@@ -7,7 +12,7 @@ header{
 .form_search{
   display: flex;
   justify-content: center;
-  width: 90%;
+  width: 105%;
 }
 
 header > img {
@@ -19,7 +24,7 @@ header > img {
   width: 90%;
   border: none;
   border-radius:5px 0 0 5px;
-  padding: 10px; 
+  padding: 15px 10px; 
   color: black;
 }
 
@@ -31,22 +36,60 @@ input::placeholder{
   color: black;
 }
 
+#tags{
+  display: flex;
+  margin: 20px 12px;
+}
+
+.tag{
+  display: flex;
+  width: 10%;
+  justify-content: space-around;
+  align-items: center;
+  width: fit-content;
+  font-size: smaller;
+  border-radius: 5px;
+  margin: 0 10px 0 0;
+}
+
+.tag > * {
+  font-size: smaller;
+  display: flex;
+  margin: 0;
+  height: fit-content;
+  padding: 7px 10px;
+}
+
 #suggestsIngredients, #suggestsAppliance, #suggestsUstensils{
   position: absolute;
+  /* width: inherit; */
+  display: flex;
+  margin-top: 3%;
+  flex-direction: row;
+  flex-wrap: wrap;
+  /* height: 50vh; */
+  width: 43%;
+  border-radius: 0 5px 5px 5px;
+  padding: 10px 0;
 }
 
 #article_recipes{
   margin: auto;
-  width: 90%;
+  display: flex;
+  justify-content: space-around;
 }
 .section_recipe{
-  height: 395px;
+  max-width: 30%;
+  height: 350px;
   margin-bottom: 30px;
+  padding: 0;
+  border-radius: 5px;
+  overflow: hidden;
 }
 .recipe_img{
   background-color: gray;
   width: 100%;
-  height: 180px;
+  height: 150px;
 }
 .recipe_footer{
  display: flex;
@@ -56,9 +99,9 @@ input::placeholder{
  line-height: 50px;
 }
 
-/* .recipe_time{
-  /* float: right; */
-/* } */
+.recipe_time{
+  display: flex;
+}
 
 h2{
   /* font-size: medium; */
@@ -66,9 +109,10 @@ h2{
   font-family: Lato;
 font-style: normal;
 font-weight: normal;
-font-size: 18px;
+font-size: 16px;
 /* line-height: 45px; */
 margin-top: 15px;
+max-width: 90%;
 }
 
 .recipe_descr{
@@ -89,6 +133,17 @@ line-height: 100%;
   text-overflow: ellipsis;
  }
 
+ p.suggest{
+  font-size: smaller;
+  margin: 5px 0;
+  margin-left: 15px;
+  width: 29%;
+ }
+
+ input{
+   font-size: 0.9em;
+ }
+
 ul{
   list-style: none;
   font-size: smaller;
@@ -102,26 +157,44 @@ li{
   font-family: Lato;
 font-style: normal;
 font-weight: bold;
-font-size: 12px;
+font-size: 11px;
 line-height: 14px;
 }
 
 .article_search{
   display: flex;
+  margin: 20px 12px;
 }
 
-form{ 
-  display: contents;
-  margin-right: 25px;
+.article_search > form{ 
+  display: flex;
+  margin-right: 15px;
+  font-size: smaller;
 }
 
 
 button{
   border: none;
   background-color: #E7E7E7;
-
+  content: "\f52a";
 }
 
 textarea:focus, input:focus{
   outline: none;
+}
+
+#appliance, #ingredients, #ustensils{
+  border: none;
+  border-radius: 5px 0 0 5px;
+  width: 110px;
+  padding: 15px;
+  font-size: smaller;
+}
+
+span{
+  display: flex;
+  align-items: center;
+  border-radius: 0 5px 5px 0;
+  margin: 0;
+  width: 25px;
 }
