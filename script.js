@@ -538,49 +538,50 @@ function searchMain() {
 
   showTags();
 
-  recipesArray.forEach ( elmt => {
-    for ( let [key, value] of Object.entries(elmt)){
+    recipesArray.forEach ( elmt => {
+    Object.entries(elmt).forEach(([key,value])=> {
       if( typeof value === 'object'){
-        for( item of value) {
+        Object.entries(value).forEach(([ key,item]) =>{
           if(typeof item === "string" ){
             itemToLowerCase = item.toLowerCase();
             brutItem = item;
+            console.log(item)
           } else {
             itemToLowerCase = item.ingredient.toLowerCase();
             brutItem = item.ingredient;
+            console.log(item)
           };
           if(itemToLowerCase.includes(research.toLowerCase())){
                 updateRecipe.push(elmt);
                 suggestArrayList.push(brutItem);
                 suggestArrayList = [...new Set(suggestArrayList)];
+                console.log(item)
           }
-        } 
-      } else if ( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase())){
+        })
+      }else if ( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase())){
         updateRecipe.push(elmt);
         suggestArrayList.push(value);
         suggestArrayList = [...new Set(suggestArrayList)];
       } else if ( inputId === null ){
-          if( isNaN(value) ){
-            for( item of value) {
-              if( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase()) ){
+        if( isNaN(value) ){
+          for( item of value) {
+            if( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase()) ){
+              updateRecipe.push(elmt);
+              suggestArrayList.push(value);
+        suggestArrayList = [...new Set(suggestArrayList)];
+            } else if (typeof value === 'object' && typeof item === 'string' && item.toLowerCase().includes(research.toLowerCase())){
+              updateRecipe.push(elmt);
+              suggestArrayList.push(value);
+        suggestArrayList = [...new Set(suggestArrayList)];
+            } else if( typeof value === 'object' && typeof item === 'object' && item.ingredient.toLowerCase().includes(research.toLowerCase())){
                 updateRecipe.push(elmt);
                 suggestArrayList.push(value);
-          suggestArrayList = [...new Set(suggestArrayList)];
-              } else if (typeof value === 'object' && typeof item === 'string' && item.toLowerCase().includes(research.toLowerCase())){
-                updateRecipe.push(elmt);
-                suggestArrayList.push(value);
-          suggestArrayList = [...new Set(suggestArrayList)];
-              } else if( typeof value === 'object' && typeof item === 'object' && item.ingredient.toLowerCase().includes(research.toLowerCase())){
-                  updateRecipe.push(elmt);
-                  suggestArrayList.push(value);
-          suggestArrayList = [...new Set(suggestArrayList)];
-                }
+        suggestArrayList = [...new Set(suggestArrayList)];
               }
             }
           }
-    }
-  }
-  )
+        }
+    })})
   updateRecipe = updateRecipe.filter( elmt => {
     return cache[elmt.id]? 0 : cache[elmt.id]=1;
   });
