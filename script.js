@@ -360,7 +360,7 @@ const spans = document.getElementsByTagName('span');
 
 for ( let span of spans){
   span.addEventListener('click', (e) => {
-    let spanValue = span.getAttribute('value');
+    let spanValue = span.previousElementSibling.getAttribute("id");
     let spanValueM = spanValue[0].toUpperCase() + spanValue.slice(1);
     let suggestById = "suggests"+ spanValueM ;
     let suggestId = document.getElementById(suggestById);
@@ -380,9 +380,8 @@ for ( let span of spans){
     }
     span.parentNode.className = "col col-lg-6";
     span.parentNode.hidden = false;
-    console.log(thisInput);
     thisInput.style.width = "92.8%";
-  })
+    })
 }
 
 const arrayId = ['suggestsIngredients', 'suggestsAppliance', 'suggestsUstensils'];
@@ -394,7 +393,7 @@ for (let id of arrayId){
     let spanValue;
 
     if(e.target.parentNode){
-        spanValue = e.target.parentNode.getAttribute('value');
+        spanValue = e.target.parentNode.previousElementSibling.getAttribute('id');
         if( e.target !== document.getElementById(id) && word !== spanValue ){
           document.getElementById(id).innerHTML = "";
           document.getElementById(id).hidden = true;
