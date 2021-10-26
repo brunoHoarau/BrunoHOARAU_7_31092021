@@ -1,4 +1,4 @@
-// collect DOM elmts // branch1
+// collect DOM elmts // branch2
 
 const header = document.getElementsByTagName('header')[0];
 const articleRecipes = document.getElementById('article_recipes');
@@ -538,60 +538,47 @@ function searchMain() {
   objTags1.general = [...new Set(objTags1.general)];
 
   showTags();
-
-
-  for ( let n = 0 ; n >= 10 ; n++){
-    console.log(n)
-  }
-
-for( let [index, elmt] of Object.entries(recipesArray)){
-  for( let [item, value] of Object.entries(elmt) ){
-    if( typeof value === 'object'){
-        for( item of value) {
-          if(typeof item === "string" ){
-            itemToLowerCase = item.toLowerCase();
-            brutItem = item;
-          } else {
-            itemToLowerCase = item.ingredient.toLowerCase();
-            brutItem = item.ingredient;
-          };
-          if(itemToLowerCase.includes(research.toLowerCase())){
-                updateRecipe.push(elmt);
-                suggestArrayList.push(brutItem);
-                suggestArrayList = [...new Set(suggestArrayList)];
-          }
-        } 
-      } else if ( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase())){
-        updateRecipe.push(elmt);
-        suggestArrayList.push(value);
+  for( let i = 0; i < recipesArray.length; i++ ){
+    for( let n = 0; n < recipesArray[i].ingredients.length; n++){
+      if ( recipesArray[i].ingredients[n].ingredient.toLowerCase().includes(research.toLowerCase())){
+        updateRecipe.push(recipesArray[i])
+        suggestArrayList.push(recipesArray[i].ingredients[n].ingredient);
         suggestArrayList = [...new Set(suggestArrayList)];
-      } else if ( inputId === null ){
-          if( isNaN(value) ){
-            for( item of value) {
-              if( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase()) ){
-                updateRecipe.push(elmt);
-                suggestArrayList.push(value);
-                suggestArrayList = [...new Set(suggestArrayList)];
-              } else if (typeof value === 'object' && typeof item === 'string' && item.toLowerCase().includes(research.toLowerCase())){
-                updateRecipe.push(elmt);
-                suggestArrayList.push(value);
-                suggestArrayList = [...new Set(suggestArrayList)];
-              } else if( typeof value === 'object' && typeof item === 'object' && item.ingredient.toLowerCase().includes(research.toLowerCase())){
-                updateRecipe.push(elmt);
-                suggestArrayList.push(value);
-                suggestArrayList = [...new Set(suggestArrayList)];
-              }
-            }
-          }
-        }
+      } 
+    }
+    for( let n = 0; n < recipesArray[i].ustensils.length; n ++){
+      if( recipesArray[i].ustensils[n].toLowerCase().includes(research.toLowerCase())){
+        updateRecipe.push(recipesArray[i]);
+        suggestArrayList.push(recipesArray[i].ustensils[n]);
+        suggestArrayList = [...new Set(suggestArrayList)];
+      }
+    }
+      if (recipesArray[i].appliance.toLowerCase().includes(research.toLowerCase())){
+        updateRecipe.push(recipesArray[i]);
+        suggestArrayList.push(recipesArray[i].appliance);
+        suggestArrayList = [...new Set(suggestArrayList)];
+      }
+      if (recipesArray[i].name.toLowerCase().includes(research.toLowerCase())){
+        updateRecipe.push(recipesArray[i]);
+        suggestArrayList.push(recipesArray[i].name);
+        suggestArrayList = [...new Set(suggestArrayList)];
+      }
+      if (recipesArray[i].description.toLowerCase().includes(research.toLowerCase())){
+        updateRecipe.push(recipesArray[i]);
+        suggestArrayList.push(recipesArray[i].description);
+        suggestArrayList = [...new Set(suggestArrayList)];
+      }
   }
-    
-      
-}
-      
-  updateRecipe = updateRecipe.filter( elmt => {
-    return cache[elmt.id]? 0 : cache[elmt.id]=1;
-  });
+
+  let cache1 = [];
+  for (i = 1; i< updateRecipe.length; i++){
+    if ( cache1.indexOf(updateRecipe[i]) === -1 ){
+      cache1.push(updateRecipe[i]);
+    }
+  }
+
+  console.log(cache1)
+  updateRecipe = [...cache1]
   render();
 }
 
