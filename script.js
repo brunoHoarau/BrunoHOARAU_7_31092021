@@ -179,7 +179,7 @@ function showCards (element) {
 //  run function to update
 initData();
 function render(){
- if(recipesArray.length !== 0){ updateData() }else{initData()}  ;
+ if(recipesArray.length !== 0){ updateData() }else{ initData()}  ;
 };
 
 // addEventListener on input
@@ -360,6 +360,7 @@ const spans = document.getElementsByTagName('span');
 
 for ( let span of spans){
   span.addEventListener('click', (e) => {
+    console.log(spans[0])
     let spanValue = span.previousElementSibling.getAttribute("id");
     let spanValueM = spanValue[0].toUpperCase() + spanValue.slice(1);
     let suggestById = "suggests"+ spanValueM ;
@@ -392,7 +393,7 @@ for (let id of arrayId){
     let word = id.slice(8).toLowerCase();
     let spanValue;
 
-    if(e.target.parentNode){
+    if(e.target.parentNode && e.target.parentNode.previousElementSibling ){
         spanValue = e.target.parentNode.previousElementSibling.getAttribute('id');
         if( e.target !== document.getElementById(id) && word !== spanValue ){
           document.getElementById(id).innerHTML = "";
@@ -524,8 +525,13 @@ function sortArray(array, valuElmt, text){
 
 const buttonSearch = document.getElementsByTagName('button')[0];
 buttonSearch.addEventListener('click', e => {
-  e.preventDefault();
-  searchMain();
+  if( e.target.parentNode.previousElementSibling.value && e.target.parentNode.previousElementSibling.value.length >=3 ){
+    e.preventDefault();
+    searchMain();
+  } else {
+      alert("veuillez entrer au moins 3 lettres ")
+      
+  }
 })
 
 function searchMain() {
@@ -537,24 +543,23 @@ function searchMain() {
 
   showTags();
 
+  if( updateRecipe.length === 0){
     recipesArray.forEach ( elmt => {
-    Object.entries(elmt).forEach(([key,value])=> {
+      Object.entries(elmt).forEach(([key,value])=> {
       if( typeof value === 'object'){
         Object.entries(value).forEach(([ key,item]) =>{
           if(typeof item === "string" ){
             itemToLowerCase = item.toLowerCase();
             brutItem = item;
-            console.log(item)
           } else {
             itemToLowerCase = item.ingredient.toLowerCase();
             brutItem = item.ingredient;
-            console.log(item)
-          };
+          }
           if(itemToLowerCase.includes(research.toLowerCase())){
+            console.log(brutItem)
                 updateRecipe.push(elmt);
                 suggestArrayList.push(brutItem);
                 suggestArrayList = [...new Set(suggestArrayList)];
-                console.log(item)
           }
         })
       }else if ( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase())){
@@ -580,7 +585,52 @@ function searchMain() {
             }
           }
         }
-    })})
+    })})  } else {
+      let cacheUpdate = [];
+      updateRecipe.forEach ( elmt => {
+        Object.entries(elmt).forEach(([key,value])=> {
+        if( typeof value === 'object'){
+          Object.entries(value).forEach(([ key,item]) =>{
+            if(typeof item === "string" ){
+              itemToLowerCase = item.toLowerCase();
+              brutItem = item;
+            } else {
+              itemToLowerCase = item.ingredient.toLowerCase();
+              brutItem = item.ingredient;
+            }
+            if(itemToLowerCase.includes(research.toLowerCase())){
+              console.log(brutItem)
+                  cacheUpdate.push(elmt);
+                  suggestArrayList.push(brutItem);
+                  suggestArrayList = [...new Set(suggestArrayList)];
+            }
+          })
+        }else if ( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase())){
+          cacheUpdate.push(elmt);
+          suggestArrayList.push(value);
+          suggestArrayList = [...new Set(suggestArrayList)];
+        } else if ( inputId === null ){
+          if( isNaN(value) ){
+            for( item of value) {
+              if( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase()) ){
+                cacheUpdate.push(elmt);
+                suggestArrayList.push(value);
+          suggestArrayList = [...new Set(suggestArrayList)];
+              } else if (typeof value === 'object' && typeof item === 'string' && item.toLowerCase().includes(research.toLowerCase())){
+                cacheUpdate.push(elmt);
+                suggestArrayList.push(value);
+          suggestArrayList = [...new Set(suggestArrayList)];
+              } else if( typeof value === 'object' && typeof item === 'object' && item.ingredient.toLowerCase().includes(research.toLowerCase())){
+                  cacheUpdate.push(elmt);
+                  suggestArrayList.push(value);
+          suggestArrayList = [...new Set(suggestArrayList)];
+                }
+              }
+            }
+          }
+      })})
+      updateRecipe = [...cacheUpdate]
+    }
   updateRecipe = updateRecipe.filter( elmt => {
     return cache[elmt.id]? 0 : cache[elmt.id]=1;
   });
@@ -601,11 +651,16 @@ function removeTag(element) {
   let indexUstl = objTags1.ustensils.indexOf(element);
   let indexGen = objTags1.general.indexOf(element);
 
+
+  console.log(indexIngr)
+  console.log(indexApp)
+  console.log(indexUstl)
+  console.log(indexGen)
   if( objTags1.ingredients.length > 0 || objTags1.appliances.length > 0 || objTags1.ustensils.length > 0 || objTags1.general.length > 0){
-    indexIngr > -1 ? objTags1.ingredients.splice(indexIngr, 1, ) : "" ;
-    indexApp > -1 ? objTags1.appliances.splice(indexApp, 1, ) : "";
-    indexUstl > -1 ? objTags1.ustensils.splice(indexUstl, 1, ) : "";
-    indexGen > -1 ? objTags1.general.splice(indexGen, 1, ) : "";
+    indexIngr > -1 ? objTags1.ingredients.splice(indexIngr, 1 ) : "" ;
+    indexApp > -1 ? objTags1.appliances.splice(indexApp, 1 ) : "";
+    indexUstl > -1 ? objTags1.ustensils.splice(indexUstl, 1 ) : "";
+    indexGen > -1 ? objTags1.general.splice(indexGen, 1 ) : "";
 
     showTags();
 
@@ -617,6 +672,7 @@ function removeTag(element) {
   }
 }
 
+console.log(objTags1.general.length)
  if( objTags1.ingredients.length === 0 && objTags1.appliances.length === 0 && objTags1.ustensils.length === 0 && objTags1.general.length === 0 ){
     updateRecipe = [];
     initData();
