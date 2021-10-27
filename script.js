@@ -546,30 +546,25 @@ if (updateRecipe.length === 0 ) {
       if ( item.ingredient.toLowerCase().includes(research.toLowerCase())){
         updateRecipe.push(elmt)
         suggestArrayList.push(item.ingredient);
-        // suggestArrayList = [...new Set(suggestArrayList)]
       }
     });
     elmt.ustensils.forEach( item => {
       if(item.toLowerCase().includes(research.toLowerCase())){
       updateRecipe.push(elmt);
       suggestArrayList.push(item);
-      // suggestArrayList = [...new Set(suggestArrayList)];
       }
       });
       if(elmt.appliance.toLowerCase().includes(research.toLowerCase())){
         updateRecipe.push(elmt);
         suggestArrayList.push(elmt.appliance);
-        // suggestArrayList = [...new Set(suggestArrayList)];
       }
       if(elmt.name.toLowerCase().includes(research.toLowerCase())){
         updateRecipe.push(elmt);
         suggestArrayList.push(elmt.name);
-        // suggestArrayList = [...new Set(suggestArrayList)];
       }
       if(elmt.description.toLowerCase().includes(research.toLowerCase())){
         updateRecipe.push(elmt);
         suggestArrayList.push(elmt.description);
-        // suggestArrayList = [...new Set(suggestArrayList)];
       }
   });
 } else {
@@ -579,30 +574,25 @@ if (updateRecipe.length === 0 ) {
       if ( item.ingredient.toLowerCase().includes(research.toLowerCase())){
         cacheUpdate.push(elmt)
         suggestArrayList.push(item.ingredient);
-        // suggestArrayList = [...new Set(suggestArrayList)]
       }
     });
     elmt.ustensils.forEach( item => {
       if(item.toLowerCase().includes(research.toLowerCase())){
       cacheUpdate.push(elmt);
       suggestArrayList.push(item);
-      // suggestArrayList = [...new Set(suggestArrayList)];
       }
       });
       if(elmt.appliance.toLowerCase().includes(research.toLowerCase())){
         cacheUpdate.push(elmt);
         suggestArrayList.push(elmt.appliance);
-        // suggestArrayList = [...new Set(suggestArrayList)];
       }
       if(elmt.name.toLowerCase().includes(research.toLowerCase())){
         cacheUpdate.push(elmt);
         suggestArrayList.push(elmt.name);
-        // suggestArrayList = [...new Set(suggestArrayList)];
       }
       if(elmt.description.toLowerCase().includes(research.toLowerCase())){
         cacheUpdate.push(elmt);
         suggestArrayList.push(elmt.description);
-        // suggestArrayList = [...new Set(suggestArrayList)];
       }
     })
   updateRecipe = [...cacheUpdate];
