@@ -198,3 +198,10 @@ span{
   margin: 0;
   width: 25px;
 }
+
+span > i {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}

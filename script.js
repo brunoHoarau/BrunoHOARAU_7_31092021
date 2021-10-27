@@ -539,11 +539,7 @@ function searchMain() {
 
   showTags();
 
-
-  for ( let n = 0 ; n >= 10 ; n++){
-    console.log(n)
-  }
-
+if (updateRecipe.length === 0 ) {
 for( let [index, elmt] of Object.entries(recipesArray)){
   for( let [item, value] of Object.entries(elmt) ){
     if( typeof value === 'object'){
@@ -588,6 +584,54 @@ for( let [index, elmt] of Object.entries(recipesArray)){
     
       
 }
+} else {
+  let cacheUpdate = [];
+  for( let [index, elmt] of Object.entries(updateRecipe)){
+    for( let [item, value] of Object.entries(elmt) ){
+      if( typeof value === 'object'){
+          for( item of value) {
+            if(typeof item === "string" ){
+              itemToLowerCase = item.toLowerCase();
+              brutItem = item;
+            } else {
+              itemToLowerCase = item.ingredient.toLowerCase();
+              brutItem = item.ingredient;
+            };
+            if(itemToLowerCase.includes(research.toLowerCase())){
+                  cacheUpdate.push(elmt);
+                  suggestArrayList.push(brutItem);
+                  suggestArrayList = [...new Set(suggestArrayList)];
+            }
+          } 
+        } else if ( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase())){
+          cacheUpdate.push(elmt);
+          suggestArrayList.push(value);
+          suggestArrayList = [...new Set(suggestArrayList)];
+        } else if ( inputId === null ){
+            if( isNaN(value) ){
+              for( item of value) {
+                if( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase()) ){
+                  cacheUpdate.push(elmt);
+                  suggestArrayList.push(value);
+                  suggestArrayList = [...new Set(suggestArrayList)];
+                } else if (typeof value === 'object' && typeof item === 'string' && item.toLowerCase().includes(research.toLowerCase())){
+                  cacheUpdate.push(elmt);
+                  suggestArrayList.push(value);
+                  suggestArrayList = [...new Set(suggestArrayList)];
+                } else if( typeof value === 'object' && typeof item === 'object' && item.ingredient.toLowerCase().includes(research.toLowerCase())){
+                  cacheUpdate.push(elmt);
+                  suggestArrayList.push(value);
+                  suggestArrayList = [...new Set(suggestArrayList)];
+                }
+              }
+            }
+          }
+    }
+      
+  }
+  updateRecipe = [...cacheUpdate];
+}
+
       
   updateRecipe = updateRecipe.filter( elmt => {
     return cache[elmt.id]? 0 : cache[elmt.id]=1;
