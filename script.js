@@ -1,4 +1,5 @@
-// collect DOM elmts
+// collect DOM elmts // branch1
+
 const header = document.getElementsByTagName('header')[0];
 const articleRecipes = document.getElementById('article_recipes');
 const inputIngredients = document.getElementById('ingredientsInput');
@@ -179,7 +180,7 @@ function showCards (element) {
 //  run function to update
 initData();
 function render(){
- if(recipesArray.length !== 0){ updateData() }else{ initData()}  ;
+ if(recipesArray.length !== 0){ updateData() }else{initData()}  ;
 };
 
 // addEventListener on input
@@ -525,14 +526,94 @@ function sortArray(array, valuElmt, text){
 
 const buttonSearch = document.getElementsByTagName('button')[0];
 buttonSearch.addEventListener('click', e => {
-  if( e.target.parentNode.previousElementSibling.value && e.target.parentNode.previousElementSibling.value.length >=3 ){
-    e.preventDefault();
-    searchMain();
-  } else {
-      alert("veuillez entrer au moins 3 lettres ")
-      
-  }
+  e.preventDefault();
+  searchMain();
 })
+
+function searchMain() {
+  let cache = {};
+  let research = inputSearch[0].value;
+  research = research[0].toUpperCase() + research.slice(1);
+  objTags1.general.push(research)
+  objTags1.general = [...new Set(objTags1.general)];
+
+  showTags();
+
+if (updateRecipe.length === 0 ) {
+
+  recipesArray.forEach( elmt => {
+    elmt.ingredients.forEach( item => {
+      if ( item.ingredient.toLowerCase().includes(research.toLowerCase())){
+        updateRecipe.push(elmt)
+        suggestArrayList.push(item.ingredient);
+        // suggestArrayList = [...new Set(suggestArrayList)]
+      }
+    });
+    elmt.ustensils.forEach( item => {
+      if(item.toLowerCase().includes(research.toLowerCase())){
+      updateRecipe.push(elmt);
+      suggestArrayList.push(item);
+      // suggestArrayList = [...new Set(suggestArrayList)];
+      }
+      });
+      if(elmt.appliance.toLowerCase().includes(research.toLowerCase())){
+        updateRecipe.push(elmt);
+        suggestArrayList.push(elmt.appliance);
+        // suggestArrayList = [...new Set(suggestArrayList)];
+      }
+      if(elmt.name.toLowerCase().includes(research.toLowerCase())){
+        updateRecipe.push(elmt);
+        suggestArrayList.push(elmt.name);
+        // suggestArrayList = [...new Set(suggestArrayList)];
+      }
+      if(elmt.description.toLowerCase().includes(research.toLowerCase())){
+        updateRecipe.push(elmt);
+        suggestArrayList.push(elmt.description);
+        // suggestArrayList = [...new Set(suggestArrayList)];
+      }
+  });
+} else {
+  let cacheUpdate = [];
+  updateRecipe.forEach( elmt => {
+    elmt.ingredients.forEach( item => {
+      if ( item.ingredient.toLowerCase().includes(research.toLowerCase())){
+        cacheUpdate.push(elmt)
+        suggestArrayList.push(item.ingredient);
+        // suggestArrayList = [...new Set(suggestArrayList)]
+      }
+    });
+    elmt.ustensils.forEach( item => {
+      if(item.toLowerCase().includes(research.toLowerCase())){
+      cacheUpdate.push(elmt);
+      suggestArrayList.push(item);
+      // suggestArrayList = [...new Set(suggestArrayList)];
+      }
+      });
+      if(elmt.appliance.toLowerCase().includes(research.toLowerCase())){
+        cacheUpdate.push(elmt);
+        suggestArrayList.push(elmt.appliance);
+        // suggestArrayList = [...new Set(suggestArrayList)];
+      }
+      if(elmt.name.toLowerCase().includes(research.toLowerCase())){
+        cacheUpdate.push(elmt);
+        suggestArrayList.push(elmt.name);
+        // suggestArrayList = [...new Set(suggestArrayList)];
+      }
+      if(elmt.description.toLowerCase().includes(research.toLowerCase())){
+        cacheUpdate.push(elmt);
+        suggestArrayList.push(elmt.description);
+        // suggestArrayList = [...new Set(suggestArrayList)];
+      }
+    })
+  updateRecipe = [...cacheUpdate];
+}
+
+  suggestArrayList = [...new Set(suggestArrayList)]
+  updateRecipe = updateRecipe.filter( elmt => {
+    return cache[elmt.id]? 0 : cache[elmt.id]=1;
+  });
+  render();
+}
 
 
 // to update after delete a tag
@@ -548,16 +629,11 @@ function removeTag(element) {
   let indexUstl = objTags1.ustensils.indexOf(element);
   let indexGen = objTags1.general.indexOf(element);
 
-
-  console.log(indexIngr)
-  console.log(indexApp)
-  console.log(indexUstl)
-  console.log(indexGen)
   if( objTags1.ingredients.length > 0 || objTags1.appliances.length > 0 || objTags1.ustensils.length > 0 || objTags1.general.length > 0){
-    indexIngr > -1 ? objTags1.ingredients.splice(indexIngr, 1 ) : "" ;
-    indexApp > -1 ? objTags1.appliances.splice(indexApp, 1 ) : "";
-    indexUstl > -1 ? objTags1.ustensils.splice(indexUstl, 1 ) : "";
-    indexGen > -1 ? objTags1.general.splice(indexGen, 1 ) : "";
+    indexIngr > -1 ? objTags1.ingredients.splice(indexIngr, 1, ) : "" ;
+    indexApp > -1 ? objTags1.appliances.splice(indexApp, 1, ) : "";
+    indexUstl > -1 ? objTags1.ustensils.splice(indexUstl, 1, ) : "";
+    indexGen > -1 ? objTags1.general.splice(indexGen, 1, ) : "";
 
     showTags();
 
@@ -569,7 +645,6 @@ function removeTag(element) {
   }
 }
 
-console.log(objTags1.general.length)
  if( objTags1.ingredients.length === 0 && objTags1.appliances.length === 0 && objTags1.ustensils.length === 0 && objTags1.general.length === 0 ){
     updateRecipe = [];
     initData();
@@ -580,47 +655,99 @@ console.log(objTags1.general.length)
  
 }
 
-//////////////////////////////// ** other way to do the work **////////////////////////////////
- // Object.entries(elmt).forEach(([key,value])=> {
+
+
+// ************** other way to search **************//
+
+// if (updateRecipe.length === 0 ) {
+//   for( let [index, elmt] of Object.entries(recipesArray)){
+//     for( let [item, value] of Object.entries(elmt) ){
+//       if( typeof value === 'object'){
+//           for( item of value) {
+//             if(typeof item === "string" ){
+//               itemToLowerCase = item.toLowerCase();
+//               brutItem = item;
+//             } else {
+//               itemToLowerCase = item.ingredient.toLowerCase();
+//               brutItem = item.ingredient;
+//             };
+//             if(itemToLowerCase.includes(research.toLowerCase())){
+//                   updateRecipe.push(elmt);
+//                   suggestArrayList.push(brutItem);
+//                   suggestArrayList = [...new Set(suggestArrayList)];
+//             }
+//           } 
+//         } else if ( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase())){
+//           updateRecipe.push(elmt);
+//           suggestArrayList.push(value);
+//           suggestArrayList = [...new Set(suggestArrayList)];
+//         } else if ( inputId === null ){
+//             if( isNaN(value) ){
+//               for( item of value) {
+//                 if( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase()) ){
+//                   updateRecipe.push(elmt);
+//                   suggestArrayList.push(value);
+//                   suggestArrayList = [...new Set(suggestArrayList)];
+//                 } else if (typeof value === 'object' && typeof item === 'string' && item.toLowerCase().includes(research.toLowerCase())){
+//                   updateRecipe.push(elmt);
+//                   suggestArrayList.push(value);
+//                   suggestArrayList = [...new Set(suggestArrayList)];
+//                 } else if( typeof value === 'object' && typeof item === 'object' && item.ingredient.toLowerCase().includes(research.toLowerCase())){
+//                   updateRecipe.push(elmt);
+//                   suggestArrayList.push(value);
+//                   suggestArrayList = [...new Set(suggestArrayList)];
+//                 }
+//               }
+//             }
+//           }
+//     }
+      
         
-      // if( typeof value === 'object'){
-    //     Object.entries(value).forEach(([ key,item]) =>{
-    //       if(typeof item === "string" ){
-    //         itemToLowerCase = item.toLowerCase();
-    //         brutItem = item;
-    //       } else {
-    //         itemToLowerCase = item.ingredient.toLowerCase();
-    //         brutItem = item.ingredient;
-    //       }
-    //       if(itemToLowerCase.includes(research.toLowerCase())){
-    //         // console.log(brutItem)
-    //         //     updateRecipe.push(elmt);
-    //         //     suggestArrayList.push(brutItem);
-    //         //     suggestArrayList = [...new Set(suggestArrayList)];
-    //       }
-    //     })
-    //   }else if ( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase())){
-    //     updateRecipe.push(elmt);
-    //     suggestArrayList.push(value);
-    //     suggestArrayList = [...new Set(suggestArrayList)];
-    //   } else if ( inputId === null ){
-    //     if( isNaN(value) ){
-    //       for( item of value) {
-    //         if( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase()) ){
-    //           updateRecipe.push(elmt);
-    //           suggestArrayList.push(value);
-    //     suggestArrayList = [...new Set(suggestArrayList)];
-    //         } else if (typeof value === 'object' && typeof item === 'string' && item.toLowerCase().includes(research.toLowerCase())){
-    //           updateRecipe.push(elmt);
-    //           suggestArrayList.push(value);
-    //     suggestArrayList = [...new Set(suggestArrayList)];
-    //         } else if( typeof value === 'object' && typeof item === 'object' && item.ingredient.toLowerCase().includes(research.toLowerCase())){
-    //             updateRecipe.push(elmt);
-    //             suggestArrayList.push(value);
-    //     suggestArrayList = [...new Set(suggestArrayList)];
-    //           }
-    //         }
-    //       }
-    //     }
-    // }
-    // )
+//   }
+//   } else {
+//     let cacheUpdate = [];
+//     for( let [index, elmt] of Object.entries(updateRecipe)){
+//       for( let [item, value] of Object.entries(elmt) ){
+//         if( typeof value === 'object'){
+//             for( item of value) {
+//               if(typeof item === "string" ){
+//                 itemToLowerCase = item.toLowerCase();
+//                 brutItem = item;
+//               } else {
+//                 itemToLowerCase = item.ingredient.toLowerCase();
+//                 brutItem = item.ingredient;
+//               };
+//               if(itemToLowerCase.includes(research.toLowerCase())){
+//                     cacheUpdate.push(elmt);
+//                     suggestArrayList.push(brutItem);
+//                     suggestArrayList = [...new Set(suggestArrayList)];
+//               }
+//             } 
+//           } else if ( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase())){
+//             cacheUpdate.push(elmt);
+//             suggestArrayList.push(value);
+//             suggestArrayList = [...new Set(suggestArrayList)];
+//           } else if ( inputId === null ){
+//               if( isNaN(value) ){
+//                 for( item of value) {
+//                   if( typeof value === 'string' && value.toLowerCase().includes(research.toLowerCase()) ){
+//                     cacheUpdate.push(elmt);
+//                     suggestArrayList.push(value);
+//                     suggestArrayList = [...new Set(suggestArrayList)];
+//                   } else if (typeof value === 'object' && typeof item === 'string' && item.toLowerCase().includes(research.toLowerCase())){
+//                     cacheUpdate.push(elmt);
+//                     suggestArrayList.push(value);
+//                     suggestArrayList = [...new Set(suggestArrayList)];
+//                   } else if( typeof value === 'object' && typeof item === 'object' && item.ingredient.toLowerCase().includes(research.toLowerCase())){
+//                     cacheUpdate.push(elmt);
+//                     suggestArrayList.push(value);
+//                     suggestArrayList = [...new Set(suggestArrayList)];
+//                   }
+//                 }
+//               }
+//             }
+//       }
+        
+//     }
+//     updateRecipe = [...cacheUpdate];
+//   }
