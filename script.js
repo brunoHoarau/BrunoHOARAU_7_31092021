@@ -145,7 +145,7 @@ function showCards (element) {
   for ( recipe of element){ 
     let Recipe = new RecipeClass(recipe.id, recipe.name, recipe.servings, recipe.ingredients, recipe.time, recipe.description, recipe.appliance, recipe.ustensils) 
 
-    sectionRecipe = elmtFactory('section', {class: 'section_recipe col col-lg-4'}, 
+    sectionRecipe = elmtFactory('section', {class: 'section_recipe col- col-md-12'}, 
     elmtFactory('img', { class: 'recipe_img'}, ),
     elmtFactory('div', { class: 'recipe_footer'},
       elmtFactory('h2', { class: 'recipe_h2'}, Recipe.name ),
@@ -246,12 +246,11 @@ function showSuggest(array, e, input){
       if(input !== inputSearch[0]){
         suggests.hidden = false;
         input.parentNode.className = "col col-lg-6";
-        input.style.width = "92.8%";
+        // input.style.width = "92.8%";
       }
     } else if (suggestArrayList.length === 0 && input !== inputSearch[0] ){
       suggests.hidden = true;
-      input.parentNode.className = "col col-lg-2";
-      input.style.width = "110px";
+      input.parentNode.className = "col col-sm-12 col-md-2 col-lg-2 bg-primary text-white";
     }
     if(input !== inputSearch[0]){suggestArrayList.forEach( sug => {
       ingrdSuggest = elmtFactory('p', { class: "suggest", value: inputId, onclick: "suggestSelect(this)"}, sug )
@@ -361,16 +360,20 @@ const spans = document.getElementsByTagName('span');
 
 for ( let span of spans){
   span.addEventListener('click', (e) => {
-    console.log(spans[0])
+    let dataVal = span.getAttribute("data-value");
     let spanValue = span.previousElementSibling.getAttribute("id");
     let spanValueM = spanValue[0].toUpperCase() + spanValue.slice(1);
     let suggestById = "suggests"+ spanValueM ;
     let suggestId = document.getElementById(suggestById);
+    if(dataVal === "false"){
+      console.log(dataVal)
     suggestId.innerHTML = "";
     let nomming = spanValue+"List";
     let dynamicName = eval(nomming);
     let thisInput = e.target.parentNode.previousElementSibling.getAttribute('id');
     thisInput = document.getElementById(thisInput);
+    suggestId.style.display = 'flex'
+    dataVal = 'true';
     let i = 0;
     for( let li of dynamicName){
       let listSuggest = elmtFactory('p', { class: "suggest", value: spanValue, onclick: "listFunction(this)"}, li );
@@ -380,9 +383,24 @@ for ( let span of spans){
       }
       i++;
     }
-    span.parentNode.className = "col col-lg-6";
+    spanValue === "ingredients" ? span.parentNode.className = "col bg-primary col-lg-6" : "";
+    spanValue === "appliance" ? span.parentNode.className = "col bg-success col-lg-6" : "";
+    spanValue === "ustensils" ? span.parentNode.className = "col bg-danger col-lg-6" : "";
+    console.log(spanValue)
+    
     span.parentNode.hidden = false;
-    thisInput.style.width = "92.8%";
+    // thisInput.style.width = "92.8%";
+    span.setAttribute("data-value", "true")
+    } else if (dataVal === "true") {
+      suggestId.style.display = 'none'
+      span.setAttribute("data-value", "false")
+      spanValue === "ingredients" ? span.parentNode.className = "col col-sm-12 col-md-2 col-lg-2 bg-primary text-white" : "";
+    spanValue === "appliance" ? span.parentNode.className = "col col-sm-12 col-md-2 col-lg-2 bg-success text-white" : "";
+    spanValue === "ustensils" ? span.parentNode.className = "col col-sm-12 col-md-2 col-lg-2 bg-danger text-white" : "";
+
+    }
+
+    
     })
 }
 
@@ -393,16 +411,22 @@ for (let id of arrayId){
     e.preventDefault();
     let word = id.slice(8).toLowerCase();
     let spanValue;
+    console.log(document.getElementById(id).parentNode.childNodes[1].nextElementSibling)
 
     if(e.target.parentNode && e.target.parentNode.previousElementSibling ){
         spanValue = e.target.parentNode.previousElementSibling.getAttribute('id');
         if( e.target !== document.getElementById(id) && word !== spanValue ){
           document.getElementById(id).innerHTML = "";
           document.getElementById(id).hidden = true;
-          document.getElementById(id).parentNode.className = "col col-lg-2";
-          document.getElementById(id).parentNode.firstElementChild.style.width = "110px";
+          document.getElementById(id).style.visibility = 'hidden';
+          id.toLowerCase().includes('ingredients') ? document.getElementById(id).parentNode.className = "col col-sm-12 col-md-2 col-lg-2 bg-primary text-white" : "";
+          id.toLowerCase().includes('appliance') ? document.getElementById(id).parentNode.className = "col col-sm-12 col-md-2 col-lg-2 bg-success text-white" : "";
+          id.toLowerCase().includes('ustensils') ? document.getElementById(id).parentNode.className = "col col-sm-12 col-md-2 col-lg-2 bg-danger text-white" : "";
+          document.getElementById(id).parentNode.childNodes[1].nextElementSibling.setAttribute("data-value", "false");
         }else{
           document.getElementById(id).hidden = false;
+          document.getElementById(id).style.visibility = 'visible';
+
         }
       }
   })
@@ -415,8 +439,9 @@ function listFunction(element){
   let valuElmt = element.getAttribute('value');
   let valueM = valuElmt[0].toUpperCase() + valuElmt.slice(1);
   let suggestId = "suggests"+ valueM ;
-  document.getElementById(valuElmt).parentNode.className = "col col-lg-2";
-  document.getElementById(valuElmt).parentNode.lastElementChild.hidden = true;
+  document.getElementById(valuElmt).parentNode.className = "col col-sm-12 col-md-2 col-lg-2 bg-primary text-white";  
+  document.getElementById(valuElmt).parentNode.lastElementChild.style.display = 'none';
+  document.getElementById(valuElmt).parentNode.childNodes[1].nextElementSibling.setAttribute('data-value', 'false');
   
   // push into respective arrray to have selected
   if( valuElmt === 'ingredients' ){

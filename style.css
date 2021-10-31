@@ -38,7 +38,8 @@ input::placeholder{
 
 #tags{
   display: flex;
-  margin: 20px 12px;
+  flex-wrap: wrap;
+  margin: 20px 0;
 }
 
 .tag{
@@ -49,7 +50,7 @@ input::placeholder{
   width: fit-content;
   font-size: smaller;
   border-radius: 5px;
-  margin: 0 10px 0 0;
+  margin: 0 10px 10px 0;
 }
 
 .tag > * {
@@ -60,28 +61,37 @@ input::placeholder{
   padding: 7px 10px;
 }
 
+main{
+  margin: 50px 0;
+}
+
 #suggestsIngredients, #suggestsAppliance, #suggestsUstensils{
   position: absolute;
-  /* width: inherit; */
+  visibility: hidden;
   display: flex;
-  margin-top: 3%;
+  margin-top: 35px;
   flex-direction: row;
   flex-wrap: wrap;
   /* height: 50vh; */
-  width: 43%;
+  width: 100%;
   border-radius: 0 5px 5px 5px;
   padding: 10px 0;
+  z-index: 10;
+}
+
+#suggestsIngredients:last-child{
+  display: inline-block;
 }
 
 #article_recipes{
   margin: auto;
-  display: flex;
+  display: grid;
+  gap: 30px 25px;
   justify-content: space-around;
 }
+
 .section_recipe{
-  max-width: 30%;
   height: 350px;
-  margin-bottom: 30px;
   padding: 0;
   border-radius: 5px;
   overflow: hidden;
@@ -162,14 +172,16 @@ line-height: 14px;
 }
 
 .article_search{
-  display: flex;
+  flex-wrap: wrap;
   margin: 20px 12px;
 }
 
 .article_search > form{ 
   display: flex;
-  margin-right: 15px;
+  position: relative;
+  margin-top: 20px;
   font-size: smaller;
+  border-radius: 5px;
 }
 
 
@@ -186,9 +198,10 @@ textarea:focus, input:focus{
 #appliance, #ingredients, #ustensils{
   border: none;
   border-radius: 5px 0 0 5px;
-  width: 110px;
+  width: 92.8%;
   padding: 15px;
   font-size: smaller;
+  background-color: transparent;
 }
 
 span{
@@ -204,4 +217,37 @@ span > i {
   width: 100%;
   display: flex;
   align-items: center;
+}
+
+@media screen and (min-width: 768px) {
+  #article_recipes{
+    grid-template-columns: repeat(auto-fill, minmax( 30%, 1fr));
+  }
+  .article_search{
+    display: flex;
+    margin-right: 15px;
+  }
+  #appliance, #ingredients, #ustensils{
+    border: none;
+    border-radius: 5px 0 0 5px;
+    width: 100%;
+    padding: 15px;
+    font-size: smaller;
+  }
+  #suggestsIngredients, #suggestsAppliance, #suggestsUstensils{
+    position: absolute;
+    visibility: hidden;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-radius: 0 5px 5px 5px;
+    padding: 10px 0;
+  }
+  .article_search > form{ 
+    margin-top: 0;
+    margin-right: 15px;
+  }
+  #tags{
+    margin: 20px 12px;
+  }
 }
